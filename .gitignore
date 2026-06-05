@@ -1,0 +1,80 @@
+# ==========================================
+# arXivAgent - Root GitIgnore
+# Protects keys, databases, builds, and caches
+# ==========================================
+
+# --- API Keys and Environment Variables ---
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.secrets
+*.env
+secrets.json
+
+# --- Python Virtual Environments ---
+venv/
+.venv/
+env/
+virtualenv/
+ENV/
+*.venv
+
+# --- Python Cache and Compiled Files ---
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# --- Databases and Local Data Stores ---
+backend/db/db.json
+*.db
+*.sqlite
+*.sqlite3
+*.qdrant
+
+# --- Node.js & Next.js Build Files ---
+node_modules/
+frontend/node_modules/
+.next/
+frontend/.next/
+out/
+frontend/out/
+build/
+dist/
+.docusaurus/
+.npm
+.eslintcache
+
+# --- System & Editor Configurations ---
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+ehthumbs.db
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+# --- Logs and Debugging Files ---
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+.system_generated/
