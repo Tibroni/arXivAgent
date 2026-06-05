@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Activity, Clock, DollarSign, Cpu, CheckCircle2, AlertCircle } from 'lucide-react';
+import { hasLangsmithKey, type ServerKeyStatus } from '@/lib/keys';
 
 interface TraceStep {
   step: string;
@@ -12,13 +13,29 @@ interface TraceStep {
 
 interface ObservabilityDashboardProps {
   traces: TraceStep[];
+  apiHeaders?: Record<string, string>;
+  serverKeyStatus?: ServerKeyStatus;
 }
 
-export default function ObservabilityDashboard({ traces }: ObservabilityDashboardProps) {
+export default function ObservabilityDashboard({
+  traces,
+  apiHeaders = {},
+  serverKeyStatus = {
+    openai: false,
+    gemini: false,
+    langsmith: false,
+    langsmithProject: 'arXivAgent',
+    demoMode: false,
+  },
+}: ObservabilityDashboardProps) {
   // Simple token/cost calculations
   // In a real app we'd get these from API responses, but we can compute high-fidelity estimates:
-  const isLangsmithActive = typeof window !== 'undefined' && !!localStorage.getItem('langsmith_key');
-  const langsmithProject = typeof window !== 'undefined' ? localStorage.getItem('langsmith_project') || 'arXivAgent' : 'arXivAgent';
+  const isLangsmithActive = hasLangsmithKey(apiHeaders, serverKeyStatus);
+  const langsmithProject =
+    apiHeaders['X-Langsmith-Project'] ||
+    (typeof window !== 'undefined' ? localStorage.getItem('langsmith_project') : null) ||
+    serverKeyStatus.langsmithProject ||
+    'arXivAgent';
 
   // Calculate stats
   const totalLatencyMs = traces.reduce((acc, t) => acc + t.duration_ms, 0);

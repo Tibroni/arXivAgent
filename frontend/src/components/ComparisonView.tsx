@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { GitCompare, Loader2, Plus, Sparkles, CheckCircle2, AlertTriangle, Lightbulb } from 'lucide-react';
 import { apiUrl } from '@/lib/api';
+import { hasLLMKey, type ServerKeyStatus } from '@/lib/keys';
 
 interface ComparisonData {
   similarities: string[];
@@ -15,9 +16,10 @@ interface ComparisonData {
 interface ComparisonViewProps {
   selectedPaperIds: string[];
   apiHeaders: Record<string, string>;
+  serverKeyStatus: ServerKeyStatus;
 }
 
-export default function ComparisonView({ selectedPaperIds, apiHeaders }: ComparisonViewProps) {
+export default function ComparisonView({ selectedPaperIds, apiHeaders, serverKeyStatus }: ComparisonViewProps) {
   const [data, setData] = useState<ComparisonData | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -27,7 +29,7 @@ export default function ComparisonView({ selectedPaperIds, apiHeaders }: Compari
       return;
     }
 
-    if (!apiHeaders['X-OpenAI-Key'] && !apiHeaders['X-Gemini-Key']) {
+    if (!hasLLMKey(apiHeaders, serverKeyStatus)) {
       alert("Please configure API keys in settings to generate comparison reports.");
       return;
     }

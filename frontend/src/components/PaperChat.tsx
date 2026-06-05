@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Send, Sparkles, ShieldAlert, CheckCircle, ShieldCheck, HelpCircle, ChevronDown, ChevronUp, BarChart2, Loader2, BookOpen, Menu, Trash2, Plus, MessageSquare, X } from 'lucide-react';
 import { apiUrl } from '@/lib/api';
+import { hasLLMKey, type ServerKeyStatus } from '@/lib/keys';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -34,12 +35,13 @@ interface PaperChatProps {
   activeWorkspaceId: string | null;
   selectedPaperIds: string[];
   apiHeaders: Record<string, string>;
+  serverKeyStatus: ServerKeyStatus;
   onNewTrace: (traces: any[]) => void;
   onNewChunks?: (chunks: any[]) => void;
   papers: any[];
 }
 
-export default function PaperChat({ activeWorkspaceId, selectedPaperIds, apiHeaders, onNewTrace, onNewChunks, papers }: PaperChatProps) {
+export default function PaperChat({ activeWorkspaceId, selectedPaperIds, apiHeaders, serverKeyStatus, onNewTrace, onNewChunks, papers }: PaperChatProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
@@ -239,7 +241,7 @@ export default function PaperChat({ activeWorkspaceId, selectedPaperIds, apiHead
     e.preventDefault();
     if (!input.trim() || !activeWorkspaceId || sending) return;
 
-    if (!apiHeaders['X-OpenAI-Key'] && !apiHeaders['X-Gemini-Key']) {
+    if (!hasLLMKey(apiHeaders, serverKeyStatus)) {
       alert("Please enter your API keys (OpenAI or Gemini) in Settings first.");
       return;
     }

@@ -61,16 +61,43 @@ class ChatRequest(BaseModel):
 class CompareRequest(BaseModel):
     paper_ids: List[str]
 
+def resolve_openai_key(header_key: Optional[str]) -> Optional[str]:
+    return header_key or os.environ.get("OPENAI_API_KEY")
+
+def resolve_gemini_key(header_key: Optional[str]) -> Optional[str]:
+    return header_key or os.environ.get("GEMINI_API_KEY")
+
+def resolve_langsmith_key(header_key: Optional[str]) -> Optional[str]:
+    return header_key or os.environ.get("LANGSMITH_API_KEY")
+
+def resolve_langsmith_project(header_project: Optional[str]) -> str:
+    return header_project or os.environ.get("LANGSMITH_PROJECT", "arXivAgent")
+
 # Helper to configure LangSmith environment variables dynamically
 def setup_langsmith(langsmith_key: Optional[str], langsmith_project: Optional[str]):
-    if langsmith_key:
+    key = resolve_langsmith_key(langsmith_key)
+    project = resolve_langsmith_project(langsmith_project)
+    if key:
         os.environ["LANGCHAIN_TRACING_V2"] = "true"
-        os.environ["LANGCHAIN_API_KEY"] = langsmith_key
-        os.environ["LANGCHAIN_PROJECT"] = langsmith_project or "arXivAgent"
+        os.environ["LANGCHAIN_API_KEY"] = key
+        os.environ["LANGCHAIN_PROJECT"] = project
     else:
         os.environ["LANGCHAIN_TRACING_V2"] = "false"
 
 # Routes
+@app.get("/api/config")
+async def get_config():
+    server_keys = {
+        "openai": bool(os.environ.get("OPENAI_API_KEY")),
+        "gemini": bool(os.environ.get("GEMINI_API_KEY")),
+        "langsmith": bool(os.environ.get("LANGSMITH_API_KEY")),
+    }
+    return {
+        "demo_mode": server_keys["openai"] or server_keys["gemini"],
+        "server_keys": server_keys,
+        "langsmith_project": resolve_langsmith_project(None),
+    }
+
 @app.get("/api/workspaces")
 async def get_workspaces():
     db = load_db()
@@ -214,6 +241,8 @@ async def search_papers(
     x_gemini_key: Optional[str] = Header(None)
 ):
     from fastapi.responses import StreamingResponse
+    openai_key = resolve_openai_key(x_openai_key)
+    gemini_key = resolve_gemini_key(x_gemini_key)
 
     async def event_generator():
         try:
@@ -227,8 +256,8 @@ async def search_papers(
                 id_list=body.id_list,
                 start=body.start,
                 max_results=body.max_results,
-                openai_key=x_openai_key,
-                gemini_key=x_gemini_key
+                openai_key=openai_key,
+                gemini_key=gemini_key
             )
             
             yield f"data: {json.dumps({'type': 'info', 'step': 'arXiv Query', 'message': f'Retrieved {len(raw_papers)} papers. Starting Discovery Agent relevance analysis...'})}\n\n"
@@ -253,8 +282,8 @@ async def search_papers(
                 scored = run_discovery_agent(
                     query=body.query,
                     papers=[paper],
-                    openai_key=x_openai_key,
-                    gemini_key=x_gemini_key
+                    openai_key=openai_key,
+                    gemini_key=gemini_key
                 )[0]
                 
                 scored_papers.append(scored)
@@ -280,7 +309,9 @@ async def ingest_paper(
     x_openai_key: Optional[str] = Header(None),
     x_gemini_key: Optional[str] = Header(None)
 ):
-    if not x_openai_key:
+    openai_key = resolve_openai_key(x_openai_key)
+    gemini_key = resolve_gemini_key(x_gemini_key)
+    if not openai_key:
         raise HTTPException(status_code=400, detail="OpenAI API key is required to generate chunk embeddings.")
         
     db = load_db()
@@ -302,13 +333,13 @@ async def ingest_paper(
         chunks = chunk_text(text)
         
         # 3. Generate Embeddings for chunks (using text-embedding-3-large, 3072 dims)
-        embeddings = generate_embeddings(chunks, x_openai_key)
+        embeddings = generate_embeddings(chunks, openai_key)
         
         # 4. Generate Paper Summary via Analysis Agent
         analysis = run_analysis_agent(
             text=text,
-            openai_key=x_openai_key,
-            gemini_key=x_gemini_key
+            openai_key=openai_key,
+            gemini_key=gemini_key
         )
         
         paper_id = str(uuid.uuid4())
@@ -381,6 +412,8 @@ async def chat_with_papers(
     x_langsmith_project: Optional[str] = Header(None)
 ):
     setup_langsmith(x_langsmith_key, x_langsmith_project)
+    openai_key = resolve_openai_key(x_openai_key)
+    gemini_key = resolve_gemini_key(x_gemini_key)
     
     # Check if we have papers in this workspace
     db = load_db()
@@ -449,8 +482,8 @@ async def chat_with_papers(
         "paper_ids": body.paper_ids,
         "history": body.history,
         "api_keys": {
-            "openai_key": x_openai_key,
-            "gemini_key": x_gemini_key
+            "openai_key": openai_key,
+            "gemini_key": gemini_key
         },
         "openai_model": body.openai_model,
         "gemini_model": body.gemini_model,
@@ -510,6 +543,8 @@ async def compare_papers(
     x_openai_key: Optional[str] = Header(None),
     x_gemini_key: Optional[str] = Header(None)
 ):
+    openai_key = resolve_openai_key(x_openai_key)
+    gemini_key = resolve_gemini_key(x_gemini_key)
     db = load_db()
     papers = [p for p in db.get("papers", []) if p["id"] in body.paper_ids]
     if not papers:
@@ -518,8 +553,8 @@ async def compare_papers(
     try:
         comparison = run_comparison_agent(
             papers=papers,
-            openai_key=x_openai_key,
-            gemini_key=x_gemini_key
+            openai_key=openai_key,
+            gemini_key=gemini_key
         )
         return comparison
     except Exception as e:

@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Search, Loader2, Sparkles, BookOpen, Download, AlertCircle, CheckCircle, Terminal } from 'lucide-react';
 import { apiUrl } from '@/lib/api';
+import { hasOpenAIKey, type ServerKeyStatus } from '@/lib/keys';
 
 interface ScoredPaper {
   arxiv_id: string;
@@ -19,6 +20,7 @@ interface ScoredPaper {
 interface ArxivSearchProps {
   activeWorkspaceId: string | null;
   apiHeaders: Record<string, string>;
+  serverKeyStatus: ServerKeyStatus;
   onIngestionSuccess: () => void;
 }
 
@@ -32,7 +34,7 @@ interface AgentLog {
   timestamp: string;
 }
 
-export default function ArxivSearch({ activeWorkspaceId, apiHeaders, onIngestionSuccess }: ArxivSearchProps) {
+export default function ArxivSearch({ activeWorkspaceId, apiHeaders, serverKeyStatus, onIngestionSuccess }: ArxivSearchProps) {
   const [query, setQuery] = useState('');
   const [searching, setSearching] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -239,7 +241,7 @@ export default function ArxivSearch({ activeWorkspaceId, apiHeaders, onIngestion
 
     const { arxiv_id } = paper;
     
-    if (!apiHeaders['X-OpenAI-Key']) {
+    if (!hasOpenAIKey(apiHeaders, serverKeyStatus)) {
       alert("OpenAI API key is required in Settings to generate chunk embeddings.");
       return;
     }

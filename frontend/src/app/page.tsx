@@ -10,6 +10,8 @@ import PaperChat from '@/components/PaperChat';
 import ComparisonView from '@/components/ComparisonView';
 import CitationsPanel from '@/components/CitationsPanel';
 import LandingPage from '@/components/LandingPage';
+import { apiUrl } from '@/lib/api';
+import { EMPTY_SERVER_KEY_STATUS, type ServerKeyStatus } from '@/lib/keys';
 
 export default function Home() {
   const [isAppLaunched, setIsAppLaunched] = useState(false);
@@ -30,6 +32,7 @@ export default function Home() {
   const [activeSideTab, setActiveSideTab] = useState<'citations' | 'inspector'>('citations');
   
   const [apiHeaders, setApiHeaders] = useState<Record<string, string>>({});
+  const [serverKeyStatus, setServerKeyStatus] = useState<ServerKeyStatus>(EMPTY_SERVER_KEY_STATUS);
 
   // Load API keys on mount and when settings change
   const loadApiKeys = () => {
@@ -52,6 +55,28 @@ export default function Home() {
 
   useEffect(() => {
     loadApiKeys();
+  }, []);
+
+  useEffect(() => {
+    const loadServerKeyStatus = async () => {
+      try {
+        const res = await fetch(apiUrl('/api/config'));
+        if (!res.ok) return;
+
+        const data = await res.json();
+        setServerKeyStatus({
+          openai: !!data.server_keys?.openai,
+          gemini: !!data.server_keys?.gemini,
+          langsmith: !!data.server_keys?.langsmith,
+          langsmithProject: data.langsmith_project || 'arXivAgent',
+          demoMode: !!data.demo_mode,
+        });
+      } catch {
+        // Backend may be offline during local frontend-only development.
+      }
+    };
+
+    loadServerKeyStatus();
   }, []);
 
   useEffect(() => {
@@ -194,6 +219,12 @@ export default function Home() {
 
           {/* Right: Settings Cog */}
           <div className="flex items-center gap-3">
+            {serverKeyStatus.demoMode && (
+              <div className="hidden sm:flex items-center gap-1.5 text-[10px] text-emerald-400 font-bold bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-lg">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                <span>Demo Mode</span>
+              </div>
+            )}
             <div className="hidden lg:flex items-center gap-1.5 text-[10px] text-slate-500 font-bold">
               <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-ping" />
               <span>LangGraph Connected</span>
@@ -214,6 +245,7 @@ export default function Home() {
             <ArxivSearch
               activeWorkspaceId={activeWorkspaceId}
               apiHeaders={apiHeaders}
+              serverKeyStatus={serverKeyStatus}
               onIngestionSuccess={handleIngestionSuccess}
             />
           )}
@@ -251,6 +283,7 @@ export default function Home() {
                     activeWorkspaceId={activeWorkspaceId}
                     selectedPaperIds={selectedPaperIds}
                     apiHeaders={apiHeaders}
+                    serverKeyStatus={serverKeyStatus}
                     onNewTrace={(newTraces) => handleNewTrace(newTraces)}
                     onNewChunks={setRetrievedChunks}
                     papers={papers}
@@ -271,6 +304,7 @@ export default function Home() {
             <ComparisonView
               selectedPaperIds={selectedPaperIds}
               apiHeaders={apiHeaders}
+              serverKeyStatus={serverKeyStatus}
             />
           )}
         </div>
@@ -281,6 +315,7 @@ export default function Home() {
         isOpen={isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)}
         onSave={loadApiKeys}
+        serverKeyStatus={serverKeyStatus}
       />
 
       {/* Custom chat Completion intercept helper */}

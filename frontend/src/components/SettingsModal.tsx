@@ -2,14 +2,16 @@
 
 import React, { useState, useEffect } from 'react';
 import { X, Key, Settings, Cpu, LineChart } from 'lucide-react';
+import type { ServerKeyStatus } from '@/lib/keys';
 
 interface SettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: () => void;
+  serverKeyStatus: ServerKeyStatus;
 }
 
-export default function SettingsModal({ isOpen, onClose, onSave }: SettingsModalProps) {
+export default function SettingsModal({ isOpen, onClose, onSave, serverKeyStatus }: SettingsModalProps) {
   const [openaiKey, setOpenaiKey] = useState('');
   const [geminiKey, setGeminiKey] = useState('');
   const [langsmithKey, setLangsmithKey] = useState('');
@@ -57,10 +59,16 @@ export default function SettingsModal({ isOpen, onClose, onSave }: SettingsModal
         </div>
 
         <div className="space-y-6 overflow-y-auto max-h-[70vh] pr-1">
+          {serverKeyStatus.demoMode && (
+            <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
+              Demo mode is active. Server-managed API keys are already configured, so visitors can try the platform without entering their own keys. You can still add personal keys below to override the demo credentials.
+            </div>
+          )}
+
           {/* API Keys Section */}
           <div className="space-y-4">
             <h3 className="text-sm font-semibold text-indigo-300 flex items-center gap-1.5 border-b border-slate-800 pb-1">
-              <Key size={16} /> API Credentials
+              <Key size={16} /> API Credentials {serverKeyStatus.demoMode ? '(Optional)' : ''}
             </h3>
             
             <div className="space-y-2">
