@@ -1,0 +1,117 @@
+@import "tailwindcss";
+
+@theme {
+  --color-purple-550: #9e47f0;
+  --color-purple-650: #8229e0;
+  --color-indigo-550: #5953ec;
+  --color-indigo-650: #4338ca;
+}
+
+:root {
+  --background: #060814;
+  --foreground: #f1f5f9;
+  --glass-bg: rgba(13, 18, 41, 0.45);
+  --glass-border: rgba(99, 102, 241, 0.15);
+  --glass-highlight: rgba(255, 255, 255, 0.03);
+  --accent-blue: #3b82f6;
+  --accent-purple: #8b5cf6;
+  --accent-indigo: #6366f1;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  overflow-x: hidden;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.1) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.1) 0px, transparent 50%),
+    radial-gradient(at 50% 50%, rgba(59, 130, 246, 0.05) 0px, transparent 50%);
+  background-attachment: fixed;
+}
+
+/* Glassmorphism panel utility */
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  background-image: linear-gradient(135deg, var(--glass-highlight) 0%, transparent 100%);
+}
+
+.glass-panel-interactive {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-panel-interactive:hover {
+  border-color: rgba(99, 102, 241, 0.35);
+  box-shadow: 0 12px 40px 0 rgba(99, 102, 241, 0.15);
+  transform: translateY(-2px);
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(6, 8, 20, 0.5);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(99, 102, 241, 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(99, 102, 241, 0.6);
+}
+
+/* Animations */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(99, 102, 241, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(99, 102, 241, 0.45);
+  }
+}
+
+.pulse-glow {
+  animation: pulse-glow 3s infinite;
+}
+
+/* Custom slider style for RAG scores */
+.score-fill {
+  transition: width 1s ease-in-out;
+}
+
+/* Code styling */
+code {
+  font-family: 'Fira Code', 'Courier New', Courier, monospace;
+}
+
+/* Console scrollbar styling */
+.console-scrollbar::-webkit-scrollbar {
+  width: 8px !important;
+  height: 8px !important;
+  display: block !important;
+}
+
+.console-scrollbar::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.95) !important;
+  border-radius: 4px;
+}
+
+.console-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(99, 102, 241, 0.75) !important;
+  border: 2px solid rgba(15, 23, 42, 0.95) !important;
+  border-radius: 4px;
+}
+
+.console-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(99, 102, 241, 0.95) !important;
+}
+
