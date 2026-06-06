@@ -34,6 +34,8 @@ interface AgentLog {
   timestamp: string;
 }
 
+const SEARCH_PAGE_SIZE = 25;
+
 export default function ArxivSearch({ activeWorkspaceId, apiHeaders, serverKeyStatus, onIngestionSuccess }: ArxivSearchProps) {
   const [query, setQuery] = useState('');
   const [searching, setSearching] = useState(false);
@@ -101,7 +103,7 @@ export default function ArxivSearch({ activeWorkspaceId, apiHeaders, serverKeySt
           query: targetIds ? undefined : searchQuery,
           id_list: targetIds || null,
           start: startOffset,
-          max_results: 15
+          max_results: SEARCH_PAGE_SIZE
         })
       });
 
@@ -163,7 +165,7 @@ export default function ArxivSearch({ activeWorkspaceId, apiHeaders, serverKeySt
                   setResults(newPapers);
                 }
                 
-                setHasMore(newPapers.length === 15);
+                setHasMore(newPapers.length === SEARCH_PAGE_SIZE);
               } else if (data.type === 'error') {
                 appendLog('error', 'Pipeline', data.message);
                 alert(`Search failed: ${data.message}`);
@@ -398,34 +400,34 @@ export default function ArxivSearch({ activeWorkspaceId, apiHeaders, serverKeySt
             return (
               <div 
                 key={`${paper.arxiv_id}-${idx}`} 
-                className="glass-panel glass-panel-interactive p-5 flex flex-col justify-between gap-3 group hover:bg-white hover:text-black transition-all duration-500"
+                className="glass-panel glass-panel-interactive p-5 flex flex-col justify-between gap-3 group hover:border-white/25 transition-all duration-300"
               >
                 {/* Paper Header */}
                 <div className="space-y-1.5">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-[9px] font-mono font-bold text-gray-500 group-hover:text-gray-600 px-2 py-0.5 border border-white/10 group-hover:border-black/10 uppercase tracking-widest">
+                    <span className="text-[9px] font-mono font-bold text-gray-500 px-2 py-0.5 border border-white/10 uppercase tracking-widest">
                       {paper.publication_date}
                     </span>
                     {paper.categories.slice(0, 2).map((cat) => (
-                      <span key={cat} className="text-[9px] font-mono font-bold text-indigo-400 group-hover:text-indigo-600 px-2 py-0.5 border border-indigo-500/30 uppercase tracking-widest">
+                      <span key={cat} className="text-[9px] font-mono font-bold text-indigo-400 px-2 py-0.5 border border-indigo-500/30 uppercase tracking-widest">
                         {cat}
                       </span>
                     ))}
-                    <span className="text-[9px] font-mono font-bold text-gray-600 group-hover:text-gray-500 ml-auto uppercase tracking-widest">
+                    <span className="text-[9px] font-mono font-bold text-gray-600 ml-auto uppercase tracking-widest">
                       {paper.arxiv_id}
                     </span>
                   </div>
 
-                  <h3 className="text-sm font-black text-white group-hover:text-black leading-snug uppercase tracking-tight transition-colors">
+                  <h3 className="text-sm font-black text-white leading-snug uppercase tracking-tight">
                     {paper.title}
                   </h3>
                   
-                  <p className="text-[10px] text-gray-500 group-hover:text-gray-700 font-mono">
+                  <p className="text-[10px] text-gray-500 font-mono">
                     {paper.authors.join(', ')}
                   </p>
                 </div>
 
-                <p className="text-xs text-gray-500 group-hover:text-gray-700 line-clamp-3 leading-relaxed font-semibold">
+                <p className="text-xs text-gray-500 line-clamp-3 leading-relaxed font-semibold">
                   {paper.abstract}
                 </p>
 
@@ -441,7 +443,7 @@ export default function ArxivSearch({ activeWorkspaceId, apiHeaders, serverKeySt
                 )}
 
                 {/* Action Footer */}
-                <div className="border-t border-white/10 group-hover:border-black/10 pt-3 mt-1 flex flex-col sm:flex-row gap-3 sm:gap-0 sm:items-center justify-between">
+                <div className="border-t border-white/10 pt-3 mt-1 flex flex-col sm:flex-row gap-3 sm:gap-0 sm:items-center justify-between">
                   <div className="flex items-center gap-2.5">
                     <a 
                       href={`https://arxiv.org/abs/${paper.arxiv_id}`} 
@@ -468,7 +470,7 @@ export default function ArxivSearch({ activeWorkspaceId, apiHeaders, serverKeySt
                     {state === 'idle' && (
                       <button
                         onClick={() => handleIngest(paper)}
-                        className="w-full border border-white/10 group-hover:border-black/20 bg-black group-hover:bg-indigo-600 text-white group-hover:text-white hover:bg-indigo-600 px-3 py-2 text-[10px] font-mono font-bold uppercase tracking-widest flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                        className="w-full border border-white/10 bg-black text-gray-300 group-hover:bg-[#4f46e5] group-hover:border-[#4f46e5] group-hover:text-white px-3 py-2 text-[10px] font-mono font-bold uppercase tracking-widest flex items-center justify-center gap-1.5 transition-all cursor-pointer"
                       >
                         <Download size={13} />
                         <span>Ingest Paper</span>

@@ -8,7 +8,8 @@ import WorkspaceSidebar from '@/components/WorkspaceSidebar';
 import ArxivSearch from '@/components/ArxivSearch';
 import PaperChat from '@/components/PaperChat';
 import ComparisonView from '@/components/ComparisonView';
-import CitationsPanel from '@/components/CitationsPanel';
+import ChatInspectPanel from '@/components/ChatInspectPanel';
+import type { EvaluationMetrics, VerificationReport } from '@/components/QualityAuditPanel';
 import LandingPage from '@/components/LandingPage';
 import NoiseOverlay from '@/components/NoiseOverlay';
 import { apiUrl } from '@/lib/api';
@@ -26,11 +27,13 @@ export default function Home() {
   // Last interaction trace data
   const [traces, setTraces] = useState<any[]>([]);
   const [retrievedChunks, setRetrievedChunks] = useState<any[]>([]);
+  const [verificationReport, setVerificationReport] = useState<VerificationReport | undefined>();
+  const [evaluationMetrics, setEvaluationMetrics] = useState<EvaluationMetrics | undefined>();
   
   const [refreshSignal, setRefreshSignal] = useState(0);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'search' | 'chat' | 'compare'>('search');
-  const [activeSideTab, setActiveSideTab] = useState<'citations' | 'inspector'>('citations');
+  const [activeSideTab, setActiveSideTab] = useState<'citations' | 'audit'>('citations');
   
   const [apiHeaders, setApiHeaders] = useState<Record<string, string>>({});
   const [serverKeyStatus, setServerKeyStatus] = useState<ServerKeyStatus>(EMPTY_SERVER_KEY_STATUS);
@@ -234,19 +237,18 @@ export default function Home() {
           </div>
         </header>
 
-        {/* Content Viewport */}
+        {/* Content Viewport — keep panels mounted so tab switches preserve state */}
         <div className="flex-1 min-h-0 p-3 sm:p-5 overflow-hidden relative border-t border-white/5">
-          {activeTab === 'search' && (
+          <div className={`h-full ${activeTab === 'search' ? 'block' : 'hidden'}`}>
             <ArxivSearch
               activeWorkspaceId={activeWorkspaceId}
               apiHeaders={apiHeaders}
               serverKeyStatus={serverKeyStatus}
               onIngestionSuccess={handleIngestionSuccess}
             />
-          )}
+          </div>
 
-          {activeTab === 'chat' && (
-            <div className="flex flex-col h-full min-h-0 gap-3">
+          <div className={`flex flex-col h-full min-h-0 gap-3 ${activeTab === 'chat' ? 'flex' : 'hidden'}`}>
               {/* Mobile Sub-Tab Switcher (only below lg) */}
               <div className="flex lg:hidden border border-white/10 shrink-0">
                 <button
@@ -263,7 +265,7 @@ export default function Home() {
                     chatMobileSubTab === 'inspect' ? 'ds-tab-active' : 'ds-tab-inactive'
                   }`}
                 >
-                  Citations
+                  Inspect
                 </button>
               </div>
 
@@ -277,6 +279,10 @@ export default function Home() {
                     serverKeyStatus={serverKeyStatus}
                     onNewTrace={(newTraces) => handleNewTrace(newTraces)}
                     onNewChunks={setRetrievedChunks}
+                    onNewQualityAudit={({ verification_report, evaluation_metrics }) => {
+                      setVerificationReport(verification_report);
+                      setEvaluationMetrics(evaluation_metrics);
+                    }}
                     papers={papers}
                   />
                 </div>
@@ -284,20 +290,25 @@ export default function Home() {
                 {/* Side Observability details */}
                 <div className={`lg:col-span-2 h-full flex flex-col min-h-0 gap-4 ${chatMobileSubTab === 'inspect' ? 'flex' : 'hidden lg:flex'}`}>
                   <div className="flex-1 min-h-0">
-                    <CitationsPanel retrievedChunks={retrievedChunks} />
+                    <ChatInspectPanel
+                      activeSideTab={activeSideTab}
+                      onSideTabChange={setActiveSideTab}
+                      retrievedChunks={retrievedChunks}
+                      verificationReport={verificationReport}
+                      evaluationMetrics={evaluationMetrics}
+                    />
                   </div>
                 </div>
               </div>
-            </div>
-          )}
+          </div>
 
-          {activeTab === 'compare' && (
+          <div className={`h-full ${activeTab === 'compare' ? 'block' : 'hidden'}`}>
             <ComparisonView
               selectedPaperIds={selectedPaperIds}
               apiHeaders={apiHeaders}
               serverKeyStatus={serverKeyStatus}
             />
-          )}
+          </div>
         </div>
       </div>
 

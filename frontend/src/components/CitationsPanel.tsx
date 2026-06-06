@@ -14,17 +14,12 @@ interface Chunk {
 
 interface CitationsPanelProps {
   retrievedChunks: Chunk[];
+  embedded?: boolean;
 }
 
-export default function CitationsPanel({ retrievedChunks }: CitationsPanelProps) {
-  return (
-    <div className="glass-panel p-5 flex flex-col h-full overflow-hidden">
-      <div className="flex items-center gap-2 border-b border-white/10 pb-4 mb-4">
-        <BookOpen className="text-indigo-400" size={18} />
-        <h2 className="text-sm font-black tracking-tighter uppercase text-white">Active Citations</h2>
-      </div>
-
-      <div className="flex-1 overflow-y-auto space-y-4 pr-1 console-scrollbar">
+export default function CitationsPanel({ retrievedChunks, embedded = false }: CitationsPanelProps) {
+  const content = (
+      <div className={`flex-1 overflow-y-auto space-y-4 pr-1 console-scrollbar ${embedded ? 'h-full' : ''}`}>
         {retrievedChunks.length > 0 ? (
           <div className="space-y-3.5">
             <div className="p-3 border border-white/10 bg-black text-[10px] text-gray-400 flex items-start gap-2 leading-relaxed font-mono">
@@ -80,6 +75,19 @@ export default function CitationsPanel({ retrievedChunks }: CitationsPanelProps)
           </div>
         )}
       </div>
+  );
+
+  if (embedded) {
+    return content;
+  }
+
+  return (
+    <div className="glass-panel p-5 flex flex-col h-full overflow-hidden">
+      <div className="flex items-center gap-2 border-b border-white/10 pb-4 mb-4">
+        <BookOpen className="text-indigo-400" size={18} />
+        <h2 className="text-sm font-black tracking-tighter uppercase text-white">Active Citations</h2>
+      </div>
+      {content}
     </div>
   );
 }

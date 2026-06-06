@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, Sparkles, ShieldAlert, CheckCircle, ShieldCheck, HelpCircle, ChevronDown, ChevronUp, BarChart2, Loader2, BookOpen, Menu, Trash2, Plus, MessageSquare, X } from 'lucide-react';
+import { Send, Sparkles, HelpCircle, Loader2, BookOpen, Menu, Trash2, Plus, MessageSquare, X } from 'lucide-react';
+import type { EvaluationMetrics, VerificationReport } from '@/components/QualityAuditPanel';
 import { apiUrl } from '@/lib/api';
 import { hasLLMKey, type ServerKeyStatus } from '@/lib/keys';
 
@@ -38,14 +39,17 @@ interface PaperChatProps {
   serverKeyStatus: ServerKeyStatus;
   onNewTrace: (traces: any[]) => void;
   onNewChunks?: (chunks: any[]) => void;
+  onNewQualityAudit?: (data: {
+    verification_report?: VerificationReport;
+    evaluation_metrics?: EvaluationMetrics;
+  }) => void;
   papers: any[];
 }
 
-export default function PaperChat({ activeWorkspaceId, selectedPaperIds, apiHeaders, serverKeyStatus, onNewTrace, onNewChunks, papers }: PaperChatProps) {
+export default function PaperChat({ activeWorkspaceId, selectedPaperIds, apiHeaders, serverKeyStatus, onNewTrace, onNewChunks, onNewQualityAudit, papers }: PaperChatProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
-  const [openAccordion, setOpenAccordion] = useState<Record<string, 'verification' | 'evaluation' | 'citations' | null>>({});
   
   const chatEndRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -98,6 +102,21 @@ export default function PaperChat({ activeWorkspaceId, selectedPaperIds, apiHead
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  const publishMessageInspectData = (msg: Message) => {
+    if (msg.retrieved_chunks && onNewChunks) {
+      onNewChunks(msg.retrieved_chunks);
+    }
+    if (msg.traces && onNewTrace) {
+      onNewTrace(msg.traces);
+    }
+    if (onNewQualityAudit) {
+      onNewQualityAudit({
+        verification_report: msg.verification_report,
+        evaluation_metrics: msg.evaluation_metrics,
+      });
+    }
+  };
 
   const fetchThreads = async () => {
     try {
@@ -153,16 +172,11 @@ export default function PaperChat({ activeWorkspaceId, selectedPaperIds, apiHead
         // Auto-populate parent panels with the last assistant message's data
         const assistantMsgs = historyMsgs.filter(m => m.role === 'assistant');
         if (assistantMsgs.length > 0) {
-          const lastMsg = assistantMsgs[assistantMsgs.length - 1];
-          if (lastMsg.retrieved_chunks && onNewChunks) {
-            onNewChunks(lastMsg.retrieved_chunks);
-          }
-          if (lastMsg.traces && onNewTrace) {
-            onNewTrace(lastMsg.traces);
-          }
+          publishMessageInspectData(assistantMsgs[assistantMsgs.length - 1]);
         } else {
           if (onNewChunks) onNewChunks([]);
           if (onNewTrace) onNewTrace([]);
+          if (onNewQualityAudit) onNewQualityAudit({});
         }
       }
     } catch (e) {
@@ -294,7 +308,7 @@ export default function PaperChat({ activeWorkspaceId, selectedPaperIds, apiHead
         };
 
         setMessages(prev => [...prev, assistantMsg]);
-        onNewTrace(data.traces);
+        publishMessageInspectData(assistantMsg);
         
         // Refresh the threads list to update the title in the sidebar
         fetchThreads();
@@ -308,27 +322,6 @@ export default function PaperChat({ activeWorkspaceId, selectedPaperIds, apiHead
     } finally {
       setSending(false);
     }
-  };
-
-  const toggleAccordion = (msgId: string, type: 'verification' | 'evaluation' | 'citations') => {
-    setOpenAccordion(prev => {
-      const current = prev[msgId];
-      return {
-        ...prev,
-        [msgId]: current === type ? null : type
-      };
-    });
-  };
-
-  const getMetricColor = (val: number, isRisk = false) => {
-    if (isRisk) {
-      if (val >= 0.6) return 'bg-gradient-to-r from-rose-500 to-pink-500';
-      if (val >= 0.3) return 'bg-gradient-to-r from-amber-500 to-yellow-550';
-      return 'bg-gradient-to-r from-emerald-500 to-teal-500';
-    }
-    if (val >= 0.8) return 'bg-gradient-to-r from-emerald-500 to-teal-550';
-    if (val >= 0.5) return 'bg-gradient-to-r from-amber-500 to-yellow-550';
-    return 'bg-gradient-to-r from-rose-500 to-pink-500';
   };
 
   const parseInlineMarkdown = (text: string, retrievedChunksList?: any[], msgId?: string, traces?: any[]) => {
@@ -590,8 +583,7 @@ export default function PaperChat({ activeWorkspaceId, selectedPaperIds, apiHead
             <div 
               onClick={() => {
                 if (msg.role === 'assistant') {
-                  if (msg.retrieved_chunks && onNewChunks) onNewChunks(msg.retrieved_chunks);
-                  if (msg.traces && onNewTrace) onNewTrace(msg.traces);
+                  publishMessageInspectData(msg);
                 }
               }}
               className={`max-w-[85%] p-4 text-xs leading-relaxed border border-white/15 bg-black text-white transition-all ${
@@ -604,149 +596,6 @@ export default function PaperChat({ activeWorkspaceId, selectedPaperIds, apiHead
                 <div className="space-y-1">{parseMarkdown(msg.content, msg.id ? `msg-${msg.id}` : `idx-${idx}`, msg.retrieved_chunks, msg.id, msg.traces)}</div>
               )}
             </div>
-
-            {/* Citations & Evaluations Drawer */}
-            {msg.role === 'assistant' && msg.id && (msg.verification_report || msg.evaluation_metrics) && (
-              <div className="mt-2.5 w-full max-w-[85%] flex flex-col gap-2.5 text-xs select-none">
-
-                {/* Grounding Report Trigger */}
-                {msg.verification_report && (
-                  <div className="border border-slate-850/80 rounded-xl overflow-hidden bg-slate-900/10 hover:border-slate-800 transition-all">
-                    <button
-                      onClick={() => {
-                        toggleAccordion(msg.id!, 'verification');
-                        if (msg.retrieved_chunks && onNewChunks) onNewChunks(msg.retrieved_chunks);
-                        if (msg.traces && onNewTrace) onNewTrace(msg.traces);
-                      }}
-                      className="w-full flex items-center justify-between p-2.5 hover:bg-slate-800/30 transition-colors"
-                    >
-                      <span className="flex items-center gap-1.5 font-bold text-slate-350">
-                        {msg.verification_report.confidence_score >= 80 ? (
-                          <ShieldCheck className="text-emerald-455" size={15} />
-                        ) : (
-                          <ShieldAlert className="text-amber-455" size={15} />
-                        )}
-                        Grounding Audit: {msg.verification_report.confidence_score}%
-                      </span>
-                      {openAccordion[msg.id!] === 'verification' ? <ChevronUp size={14} className="text-slate-505" /> : <ChevronDown size={14} className="text-slate-505" />}
-                    </button>
- 
-                    {openAccordion[msg.id!] === 'verification' && (
-                      <div className="p-3.5 border-t border-slate-850/60 space-y-3 bg-slate-950/25 max-h-64 overflow-y-auto">
-                        <p className="text-[10px] text-slate-450 font-bold italic mb-2.5 border-b border-slate-900 pb-1.5 leading-relaxed">
-                          {msg.verification_report.summary}
-                        </p>
-                        {msg.verification_report.claims.map((claim, cIdx) => (
-                          <div key={`claim-${msg.id ? `msg-${msg.id}` : `idx-${idx}`}-${cIdx}`} className="p-2.5 rounded-lg bg-slate-900/35 border border-slate-850 flex items-start gap-2">
-                            {claim.is_grounded ? (
-                              <CheckCircle className="text-emerald-400 shrink-0 mt-0.5" size={13} />
-                            ) : (
-                              <ShieldAlert className="text-rose-450 shrink-0 mt-0.5" size={13} />
-                            )}
-                            <div className="min-w-0">
-                              <p className={`text-[11px] font-bold leading-normal ${claim.is_grounded ? 'text-slate-300' : 'text-rose-250'}`}>
-                                "{claim.sentence}"
-                              </p>
-                              <p className="text-[10px] text-slate-500 mt-1 leading-relaxed font-semibold">{claim.explanation}</p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* RAGAS Metrics Trigger */}
-                {msg.evaluation_metrics && (
-                  <div className="border border-slate-850/80 rounded-xl overflow-hidden bg-slate-900/10 hover:border-slate-800 transition-all">
-                    <button
-                      onClick={() => {
-                        toggleAccordion(msg.id!, 'evaluation');
-                        if (msg.retrieved_chunks && onNewChunks) onNewChunks(msg.retrieved_chunks);
-                        if (msg.traces && onNewTrace) onNewTrace(msg.traces);
-                      }}
-                      className="w-full flex items-center justify-between p-2.5 hover:bg-slate-800/30 transition-colors"
-                    >
-                      <span className="flex items-center gap-1.5 font-bold text-indigo-400">
-                        <BarChart2 size={15} />
-                        RAG Alignment & Quality Metrics
-                      </span>
-                      {openAccordion[msg.id!] === 'evaluation' ? <ChevronUp size={14} className="text-slate-505" /> : <ChevronDown size={14} className="text-slate-505" />}
-                    </button>
-
-                    {openAccordion[msg.id!] === 'evaluation' && (
-                      <div className="p-3.5 border-t border-slate-850/60 bg-slate-950/25 space-y-3">
-                        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
-                          {/* Faithfulness */}
-                          <div className="bg-slate-900/40 border border-slate-850/65 p-2.5 rounded-xl flex flex-col justify-between space-y-1">
-                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider leading-none" title="Faithfulness (Factuality)">Factuality</span>
-                            <span className="text-xs font-extrabold text-slate-100">{Math.round(msg.evaluation_metrics.faithfulness * 100)}%</span>
-                            <div className="w-full bg-slate-950/80 rounded-full h-1">
-                              <div 
-                                className={`h-1 rounded-full ${getMetricColor(msg.evaluation_metrics.faithfulness)}`}
-                                style={{ width: `${msg.evaluation_metrics.faithfulness * 100}%` }}
-                              ></div>
-                            </div>
-                          </div>
-
-                          {/* Relevance */}
-                          <div className="bg-slate-900/40 border border-slate-850/65 p-2.5 rounded-xl flex flex-col justify-between space-y-1">
-                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider leading-none" title="Answer Relevance">Relevance</span>
-                            <span className="text-xs font-extrabold text-slate-100">{Math.round(msg.evaluation_metrics.relevance * 100)}%</span>
-                            <div className="w-full bg-slate-950/80 rounded-full h-1">
-                              <div 
-                                className={`h-1 rounded-full ${getMetricColor(msg.evaluation_metrics.relevance)}`}
-                                style={{ width: `${msg.evaluation_metrics.relevance * 100}%` }}
-                              ></div>
-                            </div>
-                          </div>
-
-                          {/* Precision */}
-                          <div className="bg-slate-900/40 border border-slate-850/65 p-2.5 rounded-xl flex flex-col justify-between space-y-1">
-                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider leading-none" title="Context Precision">Precision</span>
-                            <span className="text-xs font-extrabold text-slate-100">{Math.round(msg.evaluation_metrics.context_precision * 100)}%</span>
-                            <div className="w-full bg-slate-950/80 rounded-full h-1">
-                              <div 
-                                className={`h-1 rounded-full ${getMetricColor(msg.evaluation_metrics.context_precision)}`}
-                                style={{ width: `${msg.evaluation_metrics.context_precision * 100}%` }}
-                              ></div>
-                            </div>
-                          </div>
-
-                          {/* Recall */}
-                          <div className="bg-slate-900/40 border border-slate-850/65 p-2.5 rounded-xl flex flex-col justify-between space-y-1">
-                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider leading-none" title="Context Recall">Recall</span>
-                            <span className="text-xs font-extrabold text-slate-100">{Math.round(msg.evaluation_metrics.context_recall * 100)}%</span>
-                            <div className="w-full bg-slate-950/80 rounded-full h-1">
-                              <div 
-                                className={`h-1 rounded-full ${getMetricColor(msg.evaluation_metrics.context_recall)}`}
-                                style={{ width: `${msg.evaluation_metrics.context_recall * 100}%` }}
-                              ></div>
-                            </div>
-                          </div>
-
-                          {/* Hallucination */}
-                          <div className="bg-slate-900/40 border border-slate-850/65 p-2.5 rounded-xl flex flex-col justify-between space-y-1">
-                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider leading-none" title="Hallucination Risk">Hallucination</span>
-                            <span className="text-xs font-extrabold text-slate-100">{Math.round(msg.evaluation_metrics.hallucination_risk * 100)}%</span>
-                            <div className="w-full bg-slate-950/80 rounded-full h-1">
-                              <div 
-                                className={`h-1 rounded-full ${getMetricColor(msg.evaluation_metrics.hallucination_risk, true)}`}
-                                style={{ width: `${msg.evaluation_metrics.hallucination_risk * 100}%` }}
-                              ></div>
-                            </div>
-                          </div>
-                        </div>
-
-                        <p className="text-[9px] text-slate-500 mt-2 font-bold italic border-t border-slate-900 pt-2 leading-relaxed">
-                          {msg.evaluation_metrics.justification}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            )}
           </div>
         ))}
 
