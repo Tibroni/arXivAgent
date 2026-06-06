@@ -497,7 +497,7 @@ export default function PaperChat({ activeWorkspaceId, selectedPaperIds, apiHead
     <div 
       ref={containerRef} 
       onClick={() => setActiveCitation(null)}
-      className="glass-panel rounded-2xl border-slate-850 flex h-full overflow-hidden relative"
+      className="glass-panel flex h-full overflow-hidden relative"
     >
       {/* Sidebar Panel (Collapsible Drawer Overlay on mobile) */}
       {isSidebarOpen && (
@@ -507,14 +507,13 @@ export default function PaperChat({ activeWorkspaceId, selectedPaperIds, apiHead
             className="absolute inset-0 bg-black/60 backdrop-blur-sm z-30 md:hidden cursor-pointer"
             onClick={() => setIsSidebarOpen(false)}
           />
-          <div className="absolute inset-y-0 left-0 w-56 z-40 md:relative border-r border-slate-850 bg-[#080a1d]/95 md:bg-slate-950/20 flex flex-col h-full shrink-0 shadow-2xl md:shadow-none">
-            {/* Sidebar Header: New Chat Button */}
-            <div className="p-3.5 border-b border-slate-850/50">
+          <div className="absolute inset-y-0 left-0 w-56 z-40 md:relative border-r border-white/10 bg-black flex flex-col h-full shrink-0 shadow-2xl md:shadow-none">
+            <div className="p-3.5 border-b border-white/10">
               <button
                 onClick={handleCreateThread}
                 disabled={creatingThread || !activeWorkspaceId}
                 type="button"
-                className="w-full flex items-center justify-center gap-1.5 py-2 px-3 border border-indigo-550/30 hover:border-indigo-500 rounded-xl text-xs font-semibold text-indigo-400 hover:text-indigo-300 bg-indigo-950/10 hover:bg-indigo-950/25 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full flex items-center justify-center gap-1.5 py-2 px-3 border border-white/10 hover:bg-white hover:text-black text-[10px] font-mono font-bold uppercase tracking-widest text-gray-400 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Plus size={14} />
                 <span>New Chat</span>
@@ -534,10 +533,10 @@ export default function PaperChat({ activeWorkspaceId, selectedPaperIds, apiHead
                         setIsSidebarOpen(false); // Close drawer on selection on mobile
                       }
                     }}
-                    className={`group relative flex items-center justify-between px-3 py-2.5 rounded-xl border text-[11px] font-bold cursor-pointer transition-all ${
+                    className={`group relative flex items-center justify-between px-3 py-2.5 border text-[10px] font-mono font-bold uppercase tracking-wider cursor-pointer transition-all ${
                       isActive
-                        ? 'bg-indigo-650/15 border-indigo-550/25 text-indigo-300 shadow-inner'
-                        : 'bg-slate-900/10 border-slate-850/40 text-slate-400 hover:bg-slate-800/35 hover:text-slate-305 hover:border-slate-800'
+                        ? 'bg-white text-black border-white'
+                        : 'bg-black border-white/10 text-gray-500 hover:text-white hover:border-white/20'
                     }`}
                   >
                     <div className="flex items-center gap-1.5 min-w-0 pr-4">
@@ -564,25 +563,21 @@ export default function PaperChat({ activeWorkspaceId, selectedPaperIds, apiHead
 
       {/* Main Chat Area */}
       <div className="flex-1 flex flex-col h-full min-w-0 p-5 overflow-hidden">
-        <div className="flex items-center justify-between border-b border-slate-800/50 pb-4 mb-4">
+        <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-4">
           <div className="flex items-center gap-2.5">
-            {/* Sidebar toggle button */}
             <button
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
               type="button"
-              className="p-1.5 rounded-lg border border-slate-800 bg-slate-900/30 text-slate-400 hover:text-slate-200 transition-colors cursor-pointer"
+              className="p-1.5 border border-white/10 bg-black text-gray-400 hover:bg-white hover:text-black transition-all cursor-pointer"
               title={isSidebarOpen ? "Hide chat history" : "Show chat history"}
             >
               <Menu size={15} />
             </button>
-            <div className="flex items-center gap-1.5">
-              <Sparkles className="text-indigo-400 animate-pulse shrink-0" size={18} />
-              <h2 className="text-sm font-bold text-slate-100">Research Workspace Chat</h2>
-            </div>
+            <h2 className="text-sm font-black tracking-tighter uppercase text-white">Grounded Dialogue</h2>
           </div>
           {selectedPaperIds.length > 0 && (
-            <span className="text-[10px] font-bold text-indigo-400 px-3 py-1 rounded-full bg-indigo-950/20 border border-indigo-900/30">
-              Chatting over {selectedPaperIds.length} selected papers
+            <span className="text-[9px] font-mono font-bold text-indigo-400 px-3 py-1 border border-indigo-500/30 uppercase tracking-widest">
+              {selectedPaperIds.length} papers
             </span>
           )}
         </div>
@@ -599,10 +594,8 @@ export default function PaperChat({ activeWorkspaceId, selectedPaperIds, apiHead
                   if (msg.traces && onNewTrace) onNewTrace(msg.traces);
                 }
               }}
-              className={`max-w-[85%] rounded-2xl p-4 text-xs leading-relaxed border shadow-lg transition-all ${
-                msg.role === 'user'
-                  ? 'bg-indigo-650/15 border-indigo-550/25 text-indigo-100 rounded-tr-none'
-                  : 'bg-slate-900/40 border-slate-850/80 text-slate-200 rounded-tl-none cursor-pointer hover:bg-slate-900/50'
+              className={`max-w-[85%] p-4 text-xs leading-relaxed border border-white/15 bg-black text-white transition-all ${
+                msg.role === 'assistant' ? 'cursor-pointer hover:border-white/25' : 'font-semibold'
               }`}
             >
               {msg.role === 'user' ? (
@@ -759,7 +752,7 @@ export default function PaperChat({ activeWorkspaceId, selectedPaperIds, apiHead
 
         {sending && (
           <div className="flex flex-col items-start animate-pulse">
-            <div className="max-w-[85%] rounded-2xl p-4 text-xs leading-relaxed border bg-slate-900/40 border-slate-850 text-slate-300 rounded-tl-none flex items-center gap-2">
+            <div className="max-w-[85%] p-4 text-xs leading-relaxed border border-white/10 bg-black text-gray-400 flex items-center gap-2 font-mono">
               <Loader2 className="animate-spin text-indigo-400" size={15} />
               <span>Orchestrating agents via LangGraph...</span>
             </div>
@@ -768,12 +761,12 @@ export default function PaperChat({ activeWorkspaceId, selectedPaperIds, apiHead
 
         {messages.length === 0 && (
           <div className="flex-1 flex flex-col items-center justify-center py-12 text-center select-none">
-            <div className="p-4 rounded-2xl bg-indigo-650/10 border border-indigo-550/20 text-indigo-400 animate-pulse mb-4">
+            <div className="p-4 border border-white/10 text-indigo-400 mb-4">
               <BookOpen size={30} />
             </div>
-            <h3 className="text-base font-bold text-slate-100 tracking-tight">Chat with Workspace Research</h3>
-            <p className="text-xs text-slate-450 max-w-sm mt-1.5 mx-auto leading-relaxed font-semibold">
-              Select one or more ingested papers in the workspace sidebar, then ask questions to search and analyze across your research library.
+            <h3 className="text-sm font-black uppercase tracking-tighter text-white">Workspace Chat</h3>
+            <p className="text-[10px] font-mono text-gray-600 max-w-sm mt-1.5 mx-auto leading-relaxed">
+              Select papers in the sidebar, then ask questions grounded by citations.
             </p>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-md w-full pt-8">
@@ -787,7 +780,7 @@ export default function PaperChat({ activeWorkspaceId, selectedPaperIds, apiHead
                   key={sIdx}
                   type="button"
                   onClick={() => setInput(suggestion)}
-                  className="p-3 rounded-xl border border-slate-850/80 bg-slate-900/20 hover:bg-slate-800/40 text-left text-[11px] font-semibold text-slate-400 hover:text-slate-200 transition-all cursor-pointer hover:border-slate-700/60 hover:-translate-y-0.5 shadow-sm"
+                  className="p-3 border border-white/10 bg-black hover:bg-white hover:text-black text-left text-[10px] font-mono font-bold text-gray-500 transition-all cursor-pointer uppercase tracking-wide"
                 >
                   {suggestion}
                 </button>
@@ -799,19 +792,19 @@ export default function PaperChat({ activeWorkspaceId, selectedPaperIds, apiHead
       </div>
 
       {/* Input Form Footer */}
-      <form onSubmit={handleSend} className="flex gap-2">
+      <form onSubmit={handleSend} className="flex gap-2 border-t border-white/10 pt-4">
         <input
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder={activeWorkspaceId ? "Ask a question about the papers..." : "Select or create a workspace to start chatting..."}
+          placeholder={activeWorkspaceId ? "Ask a research question..." : "Select or create a workspace..."}
           disabled={!activeWorkspaceId || sending}
-          className="flex-1 bg-slate-900/60 border border-slate-850 rounded-xl px-4 py-2.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 disabled:opacity-50 transition-colors font-medium"
+          className="flex-1 ds-input px-4 py-2.5 text-xs disabled:opacity-50 font-mono uppercase tracking-wider"
         />
         <button
           type="submit"
           disabled={!activeWorkspaceId || sending || !input.trim()}
-          className="bg-indigo-600 hover:bg-indigo-500 disabled:bg-indigo-950 text-slate-100 p-2.5 rounded-xl shadow-md shadow-indigo-600/15 transition-all flex items-center justify-center cursor-pointer shrink-0"
+          className="bg-indigo-600 hover:bg-white hover:text-black disabled:opacity-30 text-white p-2.5 transition-all flex items-center justify-center cursor-pointer shrink-0 border border-indigo-600 hover:border-white"
         >
           <Send size={16} />
         </button>
@@ -821,7 +814,7 @@ export default function PaperChat({ activeWorkspaceId, selectedPaperIds, apiHead
       {activeCitation && (
         <div 
           onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside the popover itself
-          className="absolute z-50 w-72 xs:w-80 p-4 rounded-xl border border-slate-800 bg-[#0c0e25]/95 backdrop-blur-md shadow-2xl animate-in fade-in slide-in-from-bottom-1 duration-150 text-xs text-slate-200"
+          className="absolute z-50 w-72 xs:w-80 p-4 border border-white/10 bg-black shadow-2xl text-xs text-white"
           style={{
             top: `${activeCitation.top}px`,
             left: `${activeCitation.left}px`,

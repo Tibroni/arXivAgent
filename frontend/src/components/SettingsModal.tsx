@@ -43,132 +43,133 @@ export default function SettingsModal({ isOpen, onClose, onSave, serverKeyStatus
 
   if (!isOpen) return null;
 
+  const inputClass = "w-full ds-input px-3 py-2 text-sm";
+  const labelClass = "text-[10px] font-mono font-bold text-gray-500 uppercase tracking-widest";
+  const sectionClass = "text-[10px] font-mono font-bold text-indigo-400 uppercase tracking-widest flex items-center gap-1.5 border-b border-white/10 pb-2";
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-      <div className="glass-panel w-[92%] sm:w-full max-w-lg rounded-2xl p-6 relative animate-in fade-in zoom-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80">
+      <div className="glass-panel w-[92%] sm:w-full max-w-lg p-6 relative">
         <button 
           onClick={onClose} 
-          className="absolute top-4 right-4 text-slate-400 hover:text-slate-200 transition-colors"
+          className="absolute top-4 right-4 text-gray-500 hover:text-white transition-colors"
         >
           <X size={20} />
         </button>
 
         <div className="flex items-center gap-2 mb-6">
-          <Settings className="text-indigo-400" size={24} />
-          <h2 className="text-xl font-bold text-slate-100">Configuration Settings</h2>
+          <Settings className="text-indigo-400" size={20} />
+          <h2 className="text-lg font-black tracking-tighter uppercase text-white">Configuration</h2>
         </div>
 
         <div className="space-y-6 overflow-y-auto max-h-[70vh] pr-1">
           {serverKeyStatus.demoMode && (
-            <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
-              Demo mode is active. Server-managed API keys are already configured, so visitors can try the platform without entering their own keys. You can still add personal keys below to override the demo credentials.
+            <div className="border border-indigo-500/30 bg-indigo-600/10 px-4 py-3 text-xs text-indigo-300 font-mono leading-relaxed">
+              Demo mode active — server keys are configured. Add personal keys below to override.
             </div>
           )}
 
-          {/* API Keys Section */}
           <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-indigo-300 flex items-center gap-1.5 border-b border-slate-800 pb-1">
-              <Key size={16} /> API Credentials {serverKeyStatus.demoMode ? '(Optional)' : ''}
+            <h3 className={sectionClass}>
+              <Key size={14} /> API Credentials {serverKeyStatus.demoMode ? '(Optional)' : ''}
             </h3>
             
             <div className="space-y-2">
-              <label className="text-xs text-slate-400">OpenAI API Key (Required for vector embedding generation)</label>
+              <label className={labelClass}>OpenAI API Key</label>
               <input 
                 type="password" 
                 value={openaiKey}
                 onChange={(e) => setOpenaiKey(e.target.value)}
                 placeholder="sk-..." 
-                className="w-full bg-slate-900/60 border border-slate-700/50 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 transition-colors"
+                className={inputClass}
               />
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs text-slate-400">Gemini API Key (Preferred for agent execution)</label>
+              <label className={labelClass}>Gemini API Key</label>
               <input 
                 type="password" 
                 value={geminiKey}
                 onChange={(e) => setGeminiKey(e.target.value)}
                 placeholder="AIzaSy..." 
-                className="w-full bg-slate-900/60 border border-slate-700/50 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 transition-colors"
+                className={inputClass}
               />
             </div>
           </div>
 
-          {/* Model Preferences Section */}
           <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-indigo-300 flex items-center gap-1.5 border-b border-slate-800 pb-1">
-              <Cpu size={16} /> LLM Selection
+            <h3 className={sectionClass}>
+              <Cpu size={14} /> LLM Selection
             </h3>
             
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-xs text-slate-400">OpenAI Model</label>
+                <label className={labelClass}>OpenAI Model</label>
                 <select 
                   value={openaiModel}
                   onChange={(e) => setOpenaiModel(e.target.value)}
-                  className="w-full bg-slate-900/80 border border-slate-700/50 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 transition-colors"
+                  className={inputClass}
                 >
-                  <option value="gpt-4o-mini">gpt-4o-mini (Faster, cheaper)</option>
-                  <option value="gpt-4o">gpt-4o (Stronger reasoning)</option>
+                  <option value="gpt-4o-mini">gpt-4o-mini</option>
+                  <option value="gpt-4o">gpt-4o</option>
                 </select>
               </div>
 
               <div className="space-y-2">
-                <label className="text-xs text-slate-400">Gemini Model</label>
+                <label className={labelClass}>Gemini Model</label>
                 <select 
                   value={geminiModel}
                   onChange={(e) => setGeminiModel(e.target.value)}
-                  className="w-full bg-slate-900/80 border border-slate-700/50 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 transition-colors"
+                  className={inputClass}
                 >
-                  <option value="gemini-1.5-flash">gemini-1.5-flash (Fast)</option>
-                  <option value="gemini-1.5-pro">gemini-1.5-pro (High fidelity)</option>
+                  <option value="gemini-1.5-flash">gemini-1.5-flash</option>
+                  <option value="gemini-1.5-pro">gemini-1.5-pro</option>
                 </select>
               </div>
             </div>
           </div>
 
-          {/* LangSmith Observability Section */}
           <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-indigo-300 flex items-center gap-1.5 border-b border-slate-800 pb-1">
-              <LineChart size={16} /> LangSmith Observability (Optional)
+            <h3 className={sectionClass}>
+              <LineChart size={14} /> LangSmith
             </h3>
             
             <div className="space-y-2">
-              <label className="text-xs text-slate-400">LangSmith API Key</label>
+              <label className={labelClass}>LangSmith API Key</label>
               <input 
                 type="password" 
                 value={langsmithKey}
                 onChange={(e) => setLangsmithKey(e.target.value)}
                 placeholder="lsv2_pt_..." 
-                className="w-full bg-slate-900/60 border border-slate-700/50 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 transition-colors"
+                className={inputClass}
               />
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs text-slate-400">LangSmith Project Name</label>
+              <label className={labelClass}>Project Name</label>
               <input 
                 type="text" 
                 value={langsmithProject}
                 onChange={(e) => setLangsmithProject(e.target.value)}
                 placeholder="arXivAgent" 
-                className="w-full bg-slate-900/60 border border-slate-700/50 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 transition-colors"
+                className={inputClass}
               />
             </div>
           </div>
         </div>
 
-        <div className="mt-8 flex justify-end gap-3 border-t border-slate-800 pt-4">
+        <div className="mt-8 flex justify-end gap-3 border-t border-white/10 pt-4">
           <button 
             onClick={onClose}
-            className="px-4 py-2 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800/40 text-sm font-medium transition-all"
+            className="px-4 py-2 text-gray-500 hover:text-white hover:bg-white/5 text-[10px] font-mono font-bold uppercase tracking-widest transition-all"
           >
             Cancel
           </button>
           <button 
             onClick={handleSave}
-            className="px-5 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-slate-100 text-sm font-medium shadow-md shadow-indigo-600/25 transition-all"
+            className="px-5 py-2 ds-btn-primary"
           >
-            Save Changes
+            Save
           </button>
         </div>
       </div>

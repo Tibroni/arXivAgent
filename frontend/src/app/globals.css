@@ -8,14 +8,11 @@
 }
 
 :root {
-  --background: #060814;
-  --foreground: #f1f5f9;
-  --glass-bg: rgba(13, 18, 41, 0.45);
-  --glass-border: rgba(99, 102, 241, 0.15);
-  --glass-highlight: rgba(255, 255, 255, 0.03);
-  --accent-blue: #3b82f6;
-  --accent-purple: #8b5cf6;
-  --accent-indigo: #6366f1;
+  --background: #000000;
+  --foreground: #ffffff;
+  --app-border: rgba(255, 255, 255, 0.1);
+  --app-border-strong: rgba(255, 255, 255, 0.15);
+  --accent-indigo: #4f46e5;
 }
 
 body {
@@ -23,31 +20,93 @@ body {
   color: var(--foreground);
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   overflow-x: hidden;
-  background-image: 
-    radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.1) 0px, transparent 50%),
-    radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.1) 0px, transparent 50%),
-    radial-gradient(at 50% 50%, rgba(59, 130, 246, 0.05) 0px, transparent 50%);
-  background-attachment: fixed;
 }
 
-/* Glassmorphism panel utility */
+/* Landing-aligned panel utility (replaces glassmorphism) */
 .glass-panel {
-  background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--glass-border);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-  background-image: linear-gradient(135deg, var(--glass-highlight) 0%, transparent 100%);
+  background: #000000;
+  border: 1px solid var(--app-border);
+  box-shadow: none;
 }
 
 .glass-panel-interactive {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s ease;
 }
 
 .glass-panel-interactive:hover {
-  border-color: rgba(99, 102, 241, 0.35);
-  box-shadow: 0 12px 40px 0 rgba(99, 102, 241, 0.15);
-  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.2);
+  background: #000000;
+}
+
+/* Design system helpers */
+.ds-label {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.5625rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #6b7280;
+}
+
+.ds-heading {
+  font-weight: 900;
+  letter-spacing: -0.025em;
+  text-transform: uppercase;
+  color: #ffffff;
+}
+
+.ds-input {
+  background: #000000;
+  border: 1px solid var(--app-border-strong);
+  color: #ffffff;
+  border-radius: 0;
+}
+
+.ds-input::placeholder {
+  color: #6b7280;
+}
+
+.ds-input:focus {
+  outline: none;
+  border-color: #4f46e5;
+}
+
+.ds-btn-primary {
+  background: #4f46e5;
+  color: #ffffff;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-size: 0.625rem;
+  border-radius: 0;
+  transition: all 0.3s ease;
+}
+
+.ds-btn-primary:hover:not(:disabled) {
+  background: #ffffff;
+  color: #000000;
+}
+
+.ds-btn-primary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.ds-tab-active {
+  background: #4f46e5;
+  color: #ffffff;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.ds-tab-inactive {
+  color: #6b7280;
+  border: 1px solid transparent;
+}
+
+.ds-tab-inactive:hover {
+  color: #ffffff;
 }
 
 /* Custom scrollbars */
@@ -57,25 +116,25 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(6, 8, 20, 0.5);
+  background: #000000;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(99, 102, 241, 0.3);
-  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 0;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(99, 102, 241, 0.6);
+  background: rgba(255, 255, 255, 0.3);
 }
 
 /* Animations */
 @keyframes pulse-glow {
   0%, 100% {
-    box-shadow: 0 0 15px rgba(99, 102, 241, 0.2);
+    box-shadow: 0 0 15px rgba(79, 70, 229, 0.2);
   }
   50% {
-    box-shadow: 0 0 25px rgba(99, 102, 241, 0.45);
+    box-shadow: 0 0 25px rgba(79, 70, 229, 0.45);
   }
 }
 
@@ -83,17 +142,14 @@ body {
   animation: pulse-glow 3s infinite;
 }
 
-/* Custom slider style for RAG scores */
 .score-fill {
   transition: width 1s ease-in-out;
 }
 
-/* Code styling */
 code {
   font-family: 'Fira Code', 'Courier New', Courier, monospace;
 }
 
-/* Console scrollbar styling */
 .console-scrollbar::-webkit-scrollbar {
   width: 8px !important;
   height: 8px !important;
@@ -101,17 +157,16 @@ code {
 }
 
 .console-scrollbar::-webkit-scrollbar-track {
-  background: rgba(15, 23, 42, 0.95) !important;
-  border-radius: 4px;
+  background: #000000 !important;
+  border-radius: 0;
 }
 
 .console-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(99, 102, 241, 0.75) !important;
-  border: 2px solid rgba(15, 23, 42, 0.95) !important;
-  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.2) !important;
+  border: 2px solid #000000 !important;
+  border-radius: 0;
 }
 
 .console-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(99, 102, 241, 0.95) !important;
+  background: rgba(255, 255, 255, 0.35) !important;
 }
-

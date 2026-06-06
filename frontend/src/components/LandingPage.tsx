@@ -82,7 +82,7 @@ export default function LandingPage({ onLaunch }: LandingPageProps) {
           <div className="pt-6">
             <button
               onClick={onLaunch}
-              className="bg-indigo-600 text-white rounded-full font-bold px-10 py-5 uppercase tracking-widest text-xs transition-colors duration-300 hover:bg-white hover:text-black cursor-pointer shadow-lg inline-flex items-center gap-3 transform hover:-translate-y-0.5"
+              className="bg-indigo-600 text-white rounded-none font-bold px-10 py-5 uppercase tracking-widest text-xs transition-colors duration-300 hover:bg-white hover:text-black cursor-pointer shadow-lg inline-flex items-center gap-3 transform hover:-translate-y-0.5"
             >
               <span>Launch Application</span>
               <ArrowRight size={14} />
@@ -95,9 +95,6 @@ export default function LandingPage({ onLaunch }: LandingPageProps) {
           {/* Card 1 */}
           <div className="group rounded-none border border-white/10 bg-black p-10 hover:bg-white hover:text-black transition-all duration-500 flex flex-col justify-between h-72">
             <div className="space-y-6">
-              <span className="font-mono text-xs font-bold tracking-widest text-indigo-500 group-hover:text-indigo-650 block transition-colors">
-                [ Protocol // 01 ]
-              </span>
               <div className="space-y-3 transition-all duration-300 group-hover:pl-4">
                 <h3 className="text-xl font-black tracking-tighter uppercase">
                   Search & Ingest
@@ -116,9 +113,6 @@ export default function LandingPage({ onLaunch }: LandingPageProps) {
           {/* Card 2 */}
           <div className="group rounded-none border border-white/10 bg-black p-10 hover:bg-white hover:text-black transition-all duration-500 flex flex-col justify-between h-72">
             <div className="space-y-6">
-              <span className="font-mono text-xs font-bold tracking-widest text-indigo-500 group-hover:text-indigo-650 block transition-colors">
-                [ Protocol // 02 ]
-              </span>
               <div className="space-y-3 transition-all duration-300 group-hover:pl-4">
                 <h3 className="text-xl font-black tracking-tighter uppercase">
                   Grounded Dialogue
@@ -137,9 +131,6 @@ export default function LandingPage({ onLaunch }: LandingPageProps) {
           {/* Card 3 */}
           <div className="group rounded-none border border-white/10 bg-black p-10 hover:bg-white hover:text-black transition-all duration-500 flex flex-col justify-between h-72">
             <div className="space-y-6">
-              <span className="font-mono text-xs font-bold tracking-widest text-indigo-500 group-hover:text-indigo-650 block transition-colors">
-                [ Protocol // 03 ]
-              </span>
               <div className="space-y-3 transition-all duration-300 group-hover:pl-4">
                 <h3 className="text-xl font-black tracking-tighter uppercase">
                   Literature Synthesis

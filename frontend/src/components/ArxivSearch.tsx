@@ -305,21 +305,21 @@ export default function ArxivSearch({ activeWorkspaceId, apiHeaders, serverKeySt
   };
 
   return (
-    <div className="glass-panel rounded-2xl p-5 border-slate-800/80 flex flex-col h-full overflow-hidden">
-      {/* Search Header - Simplified Layout */}
-      <div className="flex items-center justify-between gap-4 border-b border-slate-800/50 pb-4 mb-4">
+    <div className="glass-panel p-5 flex flex-col h-full overflow-hidden">
+      <div className="flex items-center justify-between gap-4 border-b border-white/10 pb-4 mb-4">
         <div className="flex items-center gap-2">
-          <BookOpen className="text-indigo-400" size={22} />
-          <h2 className="text-lg font-bold text-slate-100">arXiv Discovery Portal</h2>
+          <h2 className="text-sm font-black tracking-tighter uppercase text-white flex items-center gap-2">
+            <BookOpen className="text-indigo-400" size={18} />
+            Search & Ingest
+          </h2>
         </div>
         
-        {/* Console Toggle Button */}
         <button
           onClick={() => setShowConsole(!showConsole)}
-          className="flex items-center gap-1.5 px-3 py-2 bg-slate-900/60 hover:bg-slate-800 text-slate-300 hover:text-slate-100 border border-slate-800/80 rounded-xl text-xs font-semibold transition-all cursor-pointer shadow-sm shrink-0"
+          className="flex items-center gap-1.5 px-3 py-2 border border-white/10 bg-black text-gray-400 hover:text-black hover:bg-white text-[10px] font-mono font-bold uppercase tracking-widest transition-all cursor-pointer shrink-0"
           title="Toggle Discovery Logs"
         >
-          <Terminal size={14} className={showConsole ? "text-emerald-400 animate-pulse" : "text-slate-550"} />
+          <Terminal size={12} className={showConsole ? "text-indigo-400 animate-pulse" : ""} />
           <span>Logs</span>
         </button>
       </div>
@@ -330,28 +330,23 @@ export default function ArxivSearch({ activeWorkspaceId, apiHeaders, serverKeySt
         {/* Left Pane: Search & Results */}
         <div className="flex-1 flex flex-col min-h-0 overflow-y-auto space-y-4 pr-1">
           {/* Tabs and Input Fields */}
-          <div className="glass-panel p-4 rounded-xl border-slate-850 bg-slate-950/20 space-y-4 shrink-0">
-            {/* Mode Switch Tabs */}
-            <div className="flex border-b border-slate-850 pb-1 gap-2">
+          <div className="border border-white/10 bg-black p-4 space-y-4 shrink-0">
+            <div className="flex border border-white/10">
               <button
                 onClick={() => setSearchMode('keyword')}
-                className={`pb-2 px-3 text-xs font-semibold transition-all relative cursor-pointer ${
-                  searchMode === 'keyword'
-                    ? 'text-indigo-400 border-b-2 border-indigo-500 font-bold'
-                    : 'text-slate-455 hover:text-slate-205'
+                className={`flex-1 py-2 px-3 text-[10px] font-mono font-bold uppercase tracking-widest transition-all cursor-pointer ${
+                  searchMode === 'keyword' ? 'ds-tab-active' : 'ds-tab-inactive'
                 }`}
               >
-                Search by Keywords
+                Keywords
               </button>
               <button
                 onClick={() => setSearchMode('url')}
-                className={`pb-2 px-3 text-xs font-semibold transition-all relative cursor-pointer ${
-                  searchMode === 'url'
-                    ? 'text-indigo-400 border-b-2 border-indigo-500 font-bold'
-                    : 'text-slate-455 hover:text-slate-205'
+                className={`flex-1 py-2 px-3 text-[10px] font-mono font-bold uppercase tracking-widest transition-all cursor-pointer border-l border-white/10 ${
+                  searchMode === 'url' ? 'ds-tab-active' : 'ds-tab-inactive'
                 }`}
               >
-                Import by arXiv URLs / IDs
+                URLs / IDs
               </button>
             </div>
 
@@ -359,19 +354,19 @@ export default function ArxivSearch({ activeWorkspaceId, apiHeaders, serverKeySt
             {searchMode === 'keyword' ? (
               <form onSubmit={handleSearch} className="flex gap-2">
                 <div className="relative flex-1">
-                  <Search className="absolute left-3 top-2.5 text-slate-500" size={16} />
+                  <Search className="absolute left-3 top-2.5 text-gray-600" size={16} />
                   <input
                     type="text"
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                     placeholder="Search papers e.g. 'Multi-Agent workflows' or 'RAG valuation'..."
-                    className="w-full bg-slate-900/60 border border-slate-850 rounded-xl pl-9 pr-3 py-2 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors"
+                    className="w-full ds-input pl-9 pr-3 py-2 text-sm"
                   />
                 </div>
                 <button
                   type="submit"
                   disabled={searching || loadingMore}
-                  className="bg-indigo-600 hover:bg-indigo-500 disabled:bg-indigo-950 text-slate-100 px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-1.5 shadow-md shadow-indigo-600/20 transition-all cursor-pointer shrink-0"
+                  className="ds-btn-primary px-4 py-2 flex items-center gap-1.5 cursor-pointer shrink-0 text-[10px]"
                 >
                   {searching ? <Loader2 size={16} className="animate-spin" /> : <Search size={16} />}
                   <span>Search</span>
@@ -384,12 +379,12 @@ export default function ArxivSearch({ activeWorkspaceId, apiHeaders, serverKeySt
                   onChange={(e) => setUrlInput(e.target.value)}
                   placeholder="Paste arXiv URLs or IDs (separated by commas or newlines), e.g.:&#10;- https://arxiv.org/abs/1706.03762&#10;- https://arxiv.org/pdf/2303.17580.pdf&#10;- 2103.00020"
                   rows={3}
-                  className="w-full bg-slate-900/60 border border-slate-850 rounded-xl p-3 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors font-mono"
+                  className="w-full ds-input p-3 text-xs font-mono"
                 />
                 <button
                   type="submit"
                   disabled={searching || loadingMore}
-                  className="bg-indigo-600 hover:bg-indigo-500 disabled:bg-indigo-950 text-slate-100 py-2 px-4 rounded-xl text-sm font-semibold flex items-center justify-center gap-1.5 shadow-md shadow-indigo-600/20 transition-all cursor-pointer"
+                  className="ds-btn-primary py-2 px-4 flex items-center justify-center gap-1.5 cursor-pointer text-[10px]"
                 >
                   {searching ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
                   <span>Load and Analyze Papers</span>
@@ -403,35 +398,34 @@ export default function ArxivSearch({ activeWorkspaceId, apiHeaders, serverKeySt
             return (
               <div 
                 key={`${paper.arxiv_id}-${idx}`} 
-                className="glass-panel glass-panel-interactive p-5 rounded-xl border-slate-800/60 bg-slate-900/5 flex flex-col justify-between gap-3"
+                className="glass-panel glass-panel-interactive p-5 flex flex-col justify-between gap-3 group hover:bg-white hover:text-black transition-all duration-500"
               >
                 {/* Paper Header */}
                 <div className="space-y-1.5">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-[10px] font-semibold text-slate-400 px-2.5 py-0.5 rounded-md bg-slate-950/50 border border-slate-850">
+                    <span className="text-[9px] font-mono font-bold text-gray-500 group-hover:text-gray-600 px-2 py-0.5 border border-white/10 group-hover:border-black/10 uppercase tracking-widest">
                       {paper.publication_date}
                     </span>
                     {paper.categories.slice(0, 2).map((cat) => (
-                      <span key={cat} className="text-[10px] font-semibold text-indigo-400 px-2.5 py-0.5 rounded-md bg-indigo-950/20 border border-indigo-900/30">
+                      <span key={cat} className="text-[9px] font-mono font-bold text-indigo-400 group-hover:text-indigo-600 px-2 py-0.5 border border-indigo-500/30 uppercase tracking-widest">
                         {cat}
                       </span>
                     ))}
-                    <span className="text-[10px] font-semibold text-slate-500 ml-auto">
-                      ID: {paper.arxiv_id}
+                    <span className="text-[9px] font-mono font-bold text-gray-600 group-hover:text-gray-500 ml-auto uppercase tracking-widest">
+                      {paper.arxiv_id}
                     </span>
                   </div>
 
-                  <h3 className="text-sm font-bold text-slate-200 leading-snug hover:text-indigo-400 transition-colors">
+                  <h3 className="text-sm font-black text-white group-hover:text-black leading-snug uppercase tracking-tight transition-colors">
                     {paper.title}
                   </h3>
                   
-                  <p className="text-[11px] text-slate-400 font-semibold">
+                  <p className="text-[10px] text-gray-500 group-hover:text-gray-700 font-mono">
                     {paper.authors.join(', ')}
                   </p>
                 </div>
 
-                {/* Paper Abstract */}
-                <p className="text-xs text-slate-550 line-clamp-3 leading-relaxed font-medium">
+                <p className="text-xs text-gray-500 group-hover:text-gray-700 line-clamp-3 leading-relaxed font-semibold">
                   {paper.abstract}
                 </p>
 
@@ -447,7 +441,7 @@ export default function ArxivSearch({ activeWorkspaceId, apiHeaders, serverKeySt
                 )}
 
                 {/* Action Footer */}
-                <div className="border-t border-slate-850/60 pt-3 mt-1 flex flex-col sm:flex-row gap-3 sm:gap-0 sm:items-center justify-between">
+                <div className="border-t border-white/10 group-hover:border-black/10 pt-3 mt-1 flex flex-col sm:flex-row gap-3 sm:gap-0 sm:items-center justify-between">
                   <div className="flex items-center gap-2.5">
                     <a 
                       href={`https://arxiv.org/abs/${paper.arxiv_id}`} 
@@ -474,7 +468,7 @@ export default function ArxivSearch({ activeWorkspaceId, apiHeaders, serverKeySt
                     {state === 'idle' && (
                       <button
                         onClick={() => handleIngest(paper)}
-                        className="w-full bg-slate-900/60 hover:bg-indigo-650 text-indigo-300 hover:text-slate-100 border border-slate-800 hover:border-indigo-500/30 px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-inner"
+                        className="w-full border border-white/10 group-hover:border-black/20 bg-black group-hover:bg-indigo-600 text-white group-hover:text-white hover:bg-indigo-600 px-3 py-2 text-[10px] font-mono font-bold uppercase tracking-widest flex items-center justify-center gap-1.5 transition-all cursor-pointer"
                       >
                         <Download size={13} />
                         <span>Ingest Paper</span>
@@ -538,14 +532,14 @@ export default function ArxivSearch({ activeWorkspaceId, apiHeaders, serverKeySt
 
           {/* Curated Recommendations for Beginners Empty State */}
           {results.length === 0 && !searching && (
-            <div className="flex flex-col items-center justify-center py-20 text-slate-500 text-center space-y-4">
-              <div className="p-4 rounded-full bg-slate-900/60 border border-slate-850 text-indigo-400">
+            <div className="flex flex-col items-center justify-center py-20 text-gray-600 text-center space-y-4">
+              <div className="p-4 border border-white/10 text-indigo-400">
                 <Search size={32} />
               </div>
               <div>
-                <h4 className="text-sm font-semibold text-slate-200">Discover Scientific Literature</h4>
-                <p className="text-xs text-slate-455 max-w-sm mt-1 mx-auto leading-relaxed">
-                  Enter any research query above, or click on a recommended topic below to see the Discovery Agent parse, filter, and score papers.
+                <h4 className="text-xs font-black uppercase tracking-tighter text-white">Discover Literature</h4>
+                <p className="text-[10px] font-mono max-w-sm mt-1 mx-auto leading-relaxed">
+                  Enter a query or select a topic below.
                 </p>
               </div>
               
@@ -558,7 +552,7 @@ export default function ArxivSearch({ activeWorkspaceId, apiHeaders, serverKeySt
                     setQuery(topic);
                     executeSearch(topic, 0, false);
                   }}
-                    className="px-3.5 py-1.5 rounded-lg text-[11px] font-bold bg-slate-905/80 hover:bg-indigo-650 hover:text-slate-100 border border-slate-850 hover:border-indigo-500/35 transition-all text-slate-400 cursor-pointer shadow-sm"
+                    className="px-3.5 py-1.5 text-[9px] font-mono font-bold uppercase tracking-widest border border-white/10 hover:bg-white hover:text-black transition-all text-gray-500 cursor-pointer"
                   >
                     {topic}
                   </button>
@@ -582,7 +576,7 @@ export default function ArxivSearch({ activeWorkspaceId, apiHeaders, serverKeySt
             <div className="flex justify-center pt-2 pb-4">
               <button
                 onClick={handleLoadMore}
-                className="bg-slate-900/60 hover:bg-indigo-650 text-slate-355 hover:text-slate-100 border border-slate-800 hover:border-indigo-500/35 px-6 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all shadow-inner cursor-pointer"
+                className="border border-white/10 hover:bg-white hover:text-black text-gray-400 px-6 py-2.5 text-[10px] font-mono font-bold uppercase tracking-widest flex items-center gap-1.5 transition-all cursor-pointer"
               >
                 <span>Load More Papers</span>
               </button>
@@ -598,7 +592,7 @@ export default function ArxivSearch({ activeWorkspaceId, apiHeaders, serverKeySt
 
         {/* Right Pane: Discovery Agent scrolling terminal console (Collapsible) */}
         {showConsole && (
-          <div className="w-full lg:w-96 shrink-0 flex flex-col h-56 lg:h-full min-h-0 border-t lg:border-t-0 lg:border-l border-slate-850 pt-4 lg:pt-0 lg:pl-5">
+          <div className="w-full lg:w-96 shrink-0 flex flex-col h-56 lg:h-full min-h-0 border-t lg:border-t-0 lg:border-l border-white/10 pt-4 lg:pt-0 lg:pl-5">
             <AgentConsole logs={logs} isStreaming={searching || loadingMore} />
           </div>
         )}
@@ -664,19 +658,18 @@ function AgentConsole({ logs, isStreaming }: AgentConsoleProps) {
   };
 
   return (
-    <div className="flex flex-col h-full bg-slate-950/80 border border-slate-850 rounded-xl overflow-hidden font-mono text-[11px] leading-relaxed shadow-2xl">
-      {/* Terminal Title Bar */}
-      <div className="bg-slate-900/95 border-b border-slate-850/80 px-3.5 py-2 flex items-center justify-between">
+    <div className="flex flex-col h-full bg-black border border-white/10 overflow-hidden font-mono text-[11px] leading-relaxed">
+      <div className="border-b border-white/10 px-3.5 py-2 flex items-center justify-between">
         <div className="flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-full bg-rose-500/80" />
-          <span className="w-2.5 h-2.5 rounded-full bg-amber-500/80" />
-          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/80" />
-          <span className="text-slate-400 font-bold ml-1.5 text-[10px]">Discovery Agent Console</span>
+          <span className="w-2.5 h-2.5 bg-white/30" />
+          <span className="w-2.5 h-2.5 bg-white/20" />
+          <span className="w-2.5 h-2.5 bg-white/10" />
+          <span className="text-gray-500 font-bold ml-1.5 text-[9px] uppercase tracking-widest">Discovery Console</span>
         </div>
         {isStreaming && (
           <div className="flex items-center gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-ping" />
-            <span className="text-[9px] text-indigo-400 uppercase font-semibold tracking-wider">Live</span>
+            <span className="w-1.5 h-1.5 bg-indigo-500 animate-ping" />
+            <span className="text-[9px] text-indigo-400 uppercase font-bold tracking-widest">Live</span>
           </div>
         )}
       </div>
@@ -687,14 +680,14 @@ function AgentConsole({ logs, isStreaming }: AgentConsoleProps) {
         className="flex-1 overflow-y-scroll p-3.5 space-y-2.5 min-h-0 console-scrollbar select-text"
       >
         {logs.length === 0 ? (
-          <div className="text-slate-600 italic flex flex-col items-center justify-center h-full text-center p-4">
-            <Terminal size={18} className="text-slate-800 mb-1.5" />
-            <span>Terminal Idle</span>
-            <span className="text-[10px] mt-1 text-slate-700">Enter a query to stream discovery logs.</span>
+          <div className="text-gray-600 flex flex-col items-center justify-center h-full text-center p-4">
+            <Terminal size={18} className="opacity-30 mb-1.5" />
+            <span className="text-[9px] uppercase tracking-widest">Idle</span>
+            <span className="text-[9px] mt-1 text-gray-700">Enter a query to stream logs.</span>
           </div>
         ) : (
           logs.map((log) => (
-            <div key={log.id} className="flex flex-col space-y-0.5 border-l-2 border-slate-850 pl-2">
+            <div key={log.id} className="flex flex-col space-y-0.5 border-l-2 border-white/10 pl-2">
               <div className="flex items-center flex-wrap gap-1.5 text-[9px]">
                 <span className="text-slate-655">{log.timestamp}</span>
                 <span className={`px-1.5 py-0.2 rounded border text-[8px] font-bold tracking-tight uppercase ${getLogBadge(log.type)}`}>

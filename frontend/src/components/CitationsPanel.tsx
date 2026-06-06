@@ -18,43 +18,40 @@ interface CitationsPanelProps {
 
 export default function CitationsPanel({ retrievedChunks }: CitationsPanelProps) {
   return (
-    <div className="glass-panel rounded-2xl p-5 border-slate-800/80 flex flex-col h-full overflow-hidden">
-      <div className="flex items-center gap-2 border-b border-slate-800/50 pb-4 mb-4">
-        <BookOpen className="text-indigo-400" size={20} />
-        <h2 className="text-lg font-bold text-slate-100">Grounding Citations</h2>
+    <div className="glass-panel p-5 flex flex-col h-full overflow-hidden">
+      <div className="flex items-center gap-2 border-b border-white/10 pb-4 mb-4">
+        <BookOpen className="text-indigo-400" size={18} />
+        <h2 className="text-sm font-black tracking-tighter uppercase text-white">Active Citations</h2>
       </div>
 
       <div className="flex-1 overflow-y-auto space-y-4 pr-1 console-scrollbar">
         {retrievedChunks.length > 0 ? (
           <div className="space-y-3.5">
-            <div className="p-3 rounded-xl border border-indigo-550/10 bg-indigo-950/5 text-xs text-indigo-300 flex items-start gap-2 leading-relaxed">
-              <Bookmark size={15} className="shrink-0 mt-0.5" />
+            <div className="p-3 border border-white/10 bg-black text-[10px] text-gray-400 flex items-start gap-2 leading-relaxed font-mono">
+              <Bookmark size={14} className="shrink-0 mt-0.5 text-indigo-400" />
               <p>
-                These source passages correspond to the inline citations used by the assistant to ground its response factually in the active research.
+                Source passages corresponding to inline citations used to ground the assistant response.
               </p>
             </div>
 
             {retrievedChunks.map((chunk, idx) => (
               <div 
                 key={`citation-item-${idx}`} 
-                className="p-4 rounded-xl border border-slate-800/80 bg-slate-900/15 space-y-3 transition-colors hover:border-slate-700/60"
+                className="p-4 border border-white/10 bg-black space-y-3 transition-colors hover:border-white/20"
               >
-                {/* Citation Header */}
-                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-850 pb-2">
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-bold bg-indigo-600 text-indigo-100 border border-indigo-550/25 px-2.5 py-0.5 rounded">
-                      Citation [{idx + 1}]
-                    </span>
-                  </div>
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-2">
+                  <span className="text-[8px] font-mono font-bold bg-indigo-600 text-white px-1.5 py-0.5">
+                    Citation [{idx + 1}]
+                  </span>
                   <div className="flex items-center gap-3">
-                    <span className="text-[10px] font-semibold text-slate-500">
+                    <span className="text-[8px] font-mono font-bold text-gray-500">
                       Score: {chunk.score.toFixed(4)}
                     </span>
                     <a 
                       href={`https://arxiv.org/abs/${chunk.arxiv_id}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-[10px] text-indigo-400 hover:text-indigo-300 flex items-center gap-0.5 underline underline-offset-2 font-semibold"
+                      className="text-[8px] text-indigo-400 hover:text-white flex items-center gap-0.5 underline font-mono font-bold"
                     >
                       <LinkIcon size={10} />
                       <span>arXiv:{chunk.arxiv_id}</span>
@@ -62,25 +59,23 @@ export default function CitationsPanel({ retrievedChunks }: CitationsPanelProps)
                   </div>
                 </div>
 
-                {/* Passage Text */}
-                <div className="text-xs text-slate-350 leading-relaxed font-mono whitespace-pre-wrap bg-black/20 p-3 rounded-lg border border-slate-900 overflow-x-auto max-h-48 select-text">
+                <div className="text-[10px] text-gray-400 leading-normal font-mono whitespace-pre-wrap bg-white/5 p-3 border border-white/10 overflow-x-auto max-h-48 select-text">
                   {chunk.text}
                 </div>
 
-                {/* Source Paper Title */}
-                <div className="flex items-center gap-1.5 text-[10px] text-slate-500 font-semibold">
-                  <FileText size={12} className="text-slate-650" />
-                  <span className="truncate">Paper: {chunk.title}</span>
+                <div className="flex items-center gap-1.5 text-[9px] text-gray-600 font-mono font-bold uppercase tracking-wider">
+                  <FileText size={12} />
+                  <span className="truncate">{chunk.title}</span>
                 </div>
               </div>
             ))}
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center py-28 text-slate-500 text-center">
-            <BookOpen size={36} className="text-slate-800 mb-3" />
-            <h4 className="text-sm font-semibold">No Citations Yet</h4>
-            <p className="text-xs text-slate-650 max-w-sm mt-1.5 font-medium">
-              Start chatting or click on an existing citation in the chat panel to view the source passage cards here.
+          <div className="flex flex-col items-center justify-center py-28 text-gray-600 text-center">
+            <BookOpen size={36} className="mb-3 opacity-20" />
+            <h4 className="text-xs font-black uppercase tracking-tighter text-white">No Citations Yet</h4>
+            <p className="text-[10px] text-gray-600 max-w-sm mt-1.5 font-mono">
+              Start chatting to view grounding source passages here.
             </p>
           </div>
         )}

@@ -10,6 +10,7 @@ import PaperChat from '@/components/PaperChat';
 import ComparisonView from '@/components/ComparisonView';
 import CitationsPanel from '@/components/CitationsPanel';
 import LandingPage from '@/components/LandingPage';
+import NoiseOverlay from '@/components/NoiseOverlay';
 import { apiUrl } from '@/lib/api';
 import { EMPTY_SERVER_KEY_STATUS, type ServerKeyStatus } from '@/lib/keys';
 
@@ -116,11 +117,13 @@ export default function Home() {
   }
 
   return (
-    <main className="w-screen h-screen flex overflow-hidden bg-[#060814] text-slate-100 font-sans antialiased relative">
+    <main className="w-screen h-screen flex overflow-hidden bg-black text-white font-sans antialiased relative selection:bg-indigo-600 selection:text-white">
+      <NoiseOverlay />
+
       {/* Backdrop overlay for mobile/tablet when sidebar is open */}
       {!isSidebarCollapsed && (
         <div 
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden cursor-pointer"
+          className="fixed inset-0 bg-black/80 z-40 lg:hidden cursor-pointer"
           onClick={() => setIsSidebarCollapsed(true)}
         />
       )}
@@ -130,7 +133,7 @@ export default function Home() {
         className={`fixed inset-y-0 left-0 z-50 lg:relative lg:z-0 transition-all duration-300 ease-in-out shrink-0 h-full ${
           isSidebarCollapsed 
             ? '-translate-x-full lg:translate-x-0 lg:w-0 lg:opacity-0 lg:overflow-hidden lg:border-none' 
-            : 'translate-x-0 w-80 border-r border-slate-850/80 bg-[#080a1d] lg:bg-transparent shadow-2xl lg:shadow-none'
+            : 'translate-x-0 w-80 border-r border-white/10 bg-black shadow-2xl lg:shadow-none'
         }`}
       >
         <WorkspaceSidebar
@@ -148,90 +151,82 @@ export default function Home() {
       </div>
 
       {/* Right Content Area */}
-      <div className="flex-1 flex flex-col h-full min-w-0 bg-gradient-to-br from-[#060814] via-[#080a1d] to-[#0c0e2a] overflow-hidden">
+      <div className="flex-1 flex flex-col h-full min-w-0 bg-black overflow-hidden z-10">
         {/* Top Header / Navigation Bar */}
-        <header className="h-16 shrink-0 border-b border-slate-850/60 bg-[#060814]/75 backdrop-blur-md flex items-center justify-between px-3.5 sm:px-6 z-10">
+        <header className="h-16 shrink-0 border-b border-white/10 bg-black flex items-center justify-between px-3.5 sm:px-6">
           <div className="flex items-center gap-2">
             <button
               onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-              className="p-1.5 rounded-lg border border-slate-800 bg-slate-900/30 text-slate-400 hover:text-slate-200 transition-colors cursor-pointer hover:bg-slate-900/60"
+              className="p-1.5 border border-white/10 bg-black text-gray-400 hover:bg-white hover:text-black transition-all cursor-pointer"
               title={isSidebarCollapsed ? "Show Workspace Sidebar" : "Hide Workspace Sidebar"}
             >
               {isSidebarCollapsed ? <PanelLeftOpen size={15} /> : <PanelLeftClose size={15} />}
             </button>
             
             <div className="flex items-center gap-2.5 ml-2">
-              <div className="p-1.5 rounded-lg bg-indigo-650/20 border border-indigo-550/35 text-indigo-400">
-                <Sparkles size={16} />
-              </div>
               <div className="leading-none">
-                <h1 className="text-sm font-bold tracking-tight text-slate-100 flex items-center gap-1.5">
-                  <span className="hidden sm:inline">arXivAgent</span> <span className="text-[9px] font-semibold text-indigo-400 bg-indigo-950/40 border border-indigo-900/30 px-1.5 py-0.5 rounded-full">v1.0</span>
+                <h1 className="text-sm font-black tracking-tighter uppercase text-white flex items-center gap-2">
+                  <span className="hidden sm:inline">arXivAgent</span>
+                  <span className="font-mono text-[9px] font-bold text-indigo-400 tracking-widest normal-case">v1.0</span>
                 </h1>
               </div>
             </div>
             
             <div className="hidden md:flex items-center gap-2 ml-4">
-              <span className="text-slate-800">|</span>
-              <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900/40 border border-slate-850/60 text-[10px] font-bold text-slate-400">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                <span>Workspace: {activeWorkspaceName}</span>
+              <span className="text-white/10">|</span>
+              <div className="flex items-center gap-1.5 px-3 py-1 border border-white/10 text-[9px] font-mono font-bold text-gray-500 uppercase tracking-widest">
+                <span className="w-1.5 h-1.5 bg-indigo-500" />
+                <span>{activeWorkspaceName}</span>
               </div>
             </div>
           </div>
 
           {/* Center: Tabs Switcher */}
-          <div className="flex bg-slate-950/60 p-1 rounded-xl border border-slate-850/80">
+          <div className="flex border border-white/10">
             <button
               onClick={() => setActiveTab('search')}
-              className={`px-4 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
-                activeTab === 'search'
-                  ? 'bg-indigo-650/85 text-slate-100 border border-indigo-500/20 shadow-md shadow-indigo-600/15 font-bold'
-                  : 'text-slate-455 border border-transparent hover:text-slate-200'
+              className={`px-3 sm:px-4 py-2 text-[10px] font-mono font-bold flex items-center gap-1.5 transition-all cursor-pointer uppercase tracking-widest ${
+                activeTab === 'search' ? 'ds-tab-active' : 'ds-tab-inactive'
               }`}
             >
-              <FileSearch size={14} />
-              <span className="hidden sm:inline">Search arXiv</span>
+              <FileSearch size={12} />
+              <span className="hidden sm:inline">Search</span>
             </button>
             <button
               onClick={() => setActiveTab('chat')}
-              className={`px-4 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
-                activeTab === 'chat'
-                  ? 'bg-indigo-650/85 text-slate-100 border border-indigo-500/20 shadow-md shadow-indigo-600/15 font-bold'
-                  : 'text-slate-455 border border-transparent hover:text-slate-200'
+              className={`px-3 sm:px-4 py-2 text-[10px] font-mono font-bold flex items-center gap-1.5 transition-all cursor-pointer uppercase tracking-widest border-l border-white/10 ${
+                activeTab === 'chat' ? 'ds-tab-active' : 'ds-tab-inactive'
               }`}
             >
-              <MessageSquare size={14} />
-              <span className="hidden sm:inline">Paper Chat</span>
+              <MessageSquare size={12} />
+              <span className="hidden sm:inline">Chat</span>
             </button>
             <button
               onClick={() => setActiveTab('compare')}
-              className={`px-4 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
-                activeTab === 'compare'
-                  ? 'bg-indigo-650/85 text-slate-100 border border-indigo-500/20 shadow-md shadow-indigo-600/15 font-bold'
-                  : 'text-slate-455 border border-transparent hover:text-slate-200'
+              className={`px-3 sm:px-4 py-2 text-[10px] font-mono font-bold flex items-center gap-1.5 transition-all cursor-pointer uppercase tracking-widest border-l border-white/10 ${
+                activeTab === 'compare' ? 'ds-tab-active' : 'ds-tab-inactive'
               }`}
             >
-              <GitCompare size={14} />
-              <span className="hidden sm:inline">Compare Matrix</span>
+              <GitCompare size={12} />
+              <span className="hidden sm:inline">Compare</span>
             </button>
           </div>
 
           {/* Right: Settings Cog */}
           <div className="flex items-center gap-3">
             {serverKeyStatus.demoMode && (
-              <div className="hidden sm:flex items-center gap-1.5 text-[10px] text-emerald-400 font-bold bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-lg">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                <span>Demo Mode</span>
+              <div className="hidden sm:flex items-center gap-1.5 font-mono text-[9px] text-indigo-400 font-bold border border-indigo-500/30 px-2.5 py-1 uppercase tracking-widest">
+                <span className="w-1.5 h-1.5 bg-indigo-500" />
+                <span>Demo</span>
               </div>
             )}
-            <div className="hidden lg:flex items-center gap-1.5 text-[10px] text-slate-500 font-bold">
-              <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-ping" />
-              <span>LangGraph Connected</span>
+            <div className="hidden lg:flex items-center gap-1.5 font-mono text-[9px] text-gray-600 font-bold uppercase tracking-widest">
+              <span className="w-1.5 h-1.5 bg-white/30 animate-pulse" />
+              <span>LangGraph</span>
             </div>
             <button
               onClick={() => setIsSettingsOpen(true)}
-              className="bg-slate-900/50 hover:bg-slate-800/60 border border-slate-800 text-slate-350 p-2 rounded-xl transition-all hover:text-slate-100 cursor-pointer shadow-sm"
+              className="border border-white/10 bg-black text-gray-400 hover:text-black hover:bg-white p-2 transition-all cursor-pointer"
               title="Configure API Keys"
             >
               <Settings size={15} />
@@ -240,7 +235,7 @@ export default function Home() {
         </header>
 
         {/* Content Viewport */}
-        <div className="flex-1 min-h-0 p-3 sm:p-6 overflow-hidden relative">
+        <div className="flex-1 min-h-0 p-3 sm:p-5 overflow-hidden relative border-t border-white/5">
           {activeTab === 'search' && (
             <ArxivSearch
               activeWorkspaceId={activeWorkspaceId}
@@ -253,23 +248,19 @@ export default function Home() {
           {activeTab === 'chat' && (
             <div className="flex flex-col h-full min-h-0 gap-3">
               {/* Mobile Sub-Tab Switcher (only below lg) */}
-              <div className="flex lg:hidden bg-slate-950/60 p-1 rounded-xl border border-slate-850/80 shrink-0">
+              <div className="flex lg:hidden border border-white/10 shrink-0">
                 <button
                   onClick={() => setChatMobileSubTab('chat')}
-                  className={`flex-1 text-center py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                    chatMobileSubTab === 'chat'
-                      ? 'bg-indigo-650/35 border border-indigo-550/25 text-indigo-300 font-bold'
-                      : 'text-slate-455 hover:text-slate-205'
+                  className={`flex-1 text-center py-2 text-[10px] font-mono font-bold uppercase tracking-widest transition-all cursor-pointer ${
+                    chatMobileSubTab === 'chat' ? 'ds-tab-active' : 'ds-tab-inactive'
                   }`}
                 >
-                  Workspace Chat
+                  Chat
                 </button>
                 <button
                   onClick={() => setChatMobileSubTab('inspect')}
-                  className={`flex-1 text-center py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                    chatMobileSubTab === 'inspect'
-                      ? 'bg-indigo-650/35 border border-indigo-550/25 text-indigo-300 font-bold'
-                      : 'text-slate-455 hover:text-slate-205'
+                  className={`flex-1 text-center py-2 text-[10px] font-mono font-bold uppercase tracking-widest transition-all cursor-pointer border-l border-white/10 ${
+                    chatMobileSubTab === 'inspect' ? 'ds-tab-active' : 'ds-tab-inactive'
                   }`}
                 >
                   Citations
